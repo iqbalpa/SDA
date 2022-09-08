@@ -10,6 +10,7 @@ public class Satu {
         // TODO: implement method getTotalDeletedLetter(int, char[]) to get the answer
         int[] flag = new int[N];
         int[] num = new int[6];
+        char[] chars = {'S', 'O', 'F', 'I', 'T', 'A'};
         boolean flagS = false;
         boolean flagO = false;
         boolean flagF = false;
@@ -17,34 +18,49 @@ public class Satu {
         boolean flagT = false;
         boolean flagA = false;
 
-        for (int i=0; i<N; i++) {
-            if (x[i] == 'S') {
-                flag[i]++;
+        // for (int i=0; i<N; i++) {
+        //     if (x[i] == 'S') {
+        //         flag[i]++;
+        //         num[0]++;
+        //         flagS = true;
+        //     } else if (flagS && x[i] == 'O') {
+        //         flag[i]++;
+        //         num[1]++;
+        //         flagO = true;
+        //     } else if (flagO && x[i] == 'F') {
+        //         flag[i]++;
+        //         num[2]++;
+        //         flagF = true;
+        //     } else if (flagF && x[i] == 'I') {
+        //         flag[i]++;
+        //         num[3]++;
+        //         flagI = true;
+        //     } else if (flagI && x[i] == 'T') {
+        //         flag[i]++;
+        //         num[4]++;
+        //         flagT = true;
+        //     } else if (flagT && x[i] == 'A') {
+        //         flag[i]++;
+        //         num[5]++;
+        //         flagA = true;
+        //     } if (flagA) {
+        //         flagS = false;
+        //     }
+        // }
+
+        for (int i=0; i<N; i++){
+            if (x[i] == 'S'){
                 num[0]++;
-                flagS = true;
-            } else if (flagS && x[i] == 'O') {
-                flag[i]++;
-                num[1]++;
-                flagO = true;
-            } else if (flagO && x[i] == 'F') {
-                flag[i]++;
-                num[2]++;
-                flagF = true;
-            } else if (flagF && x[i] == 'I') {
-                flag[i]++;
-                num[3]++;
-                flagI = true;
-            } else if (flagI && x[i] == 'T') {
-                flag[i]++;
-                num[4]++;
-                flagT = true;
-            } else if (flagT && x[i] == 'A') {
-                flag[i]++;
-                num[5]++;
-                flagA = true;
-            } if (flagA) {
-                flagS = false;
             }
+            for (int j=1; j<6; j++) {
+                if (num[j-1] > num[j] && x[i] == chars[j]) {
+                    num[j]++;
+                }
+            }
+        }
+
+        for (int i=0; i<6; i++){
+            System.out.println(chars[i] + ":" + num[i]);
         }
 
         int minimum = num[0];

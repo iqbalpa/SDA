@@ -8,56 +8,25 @@ public class Lab1 {
 
     static int getTotalDeletedLetters(int N, char[] x) {
         // TODO: implement method getTotalDeletedLetter(int, char[]) to get the answer
-        int counter = 0;
-        ArrayList<Integer> indeks = new ArrayList<>();
+        int[] num = new int[6];
+        char[] chars = {'S', 'O', 'F', 'I', 'T', 'A'};
         for (int i=0; i<N; i++){
-            for (int j=i; j<N; j++) {
-                if (indeks.isEmpty()) {
-                    if (x[i] == 'S') {
-                        indeks.add(i);
-                    } else {
-                        counter++;
-                    }
-                } else if (indeks.size() == 1) {
-                    if (x[j] == 'O') {
-                        indeks.add(j);
-                    } else {
-                        counter++;
-                    }
-                } else if (indeks.size() == 2) {
-                    if (x[j] == 'F') {
-                        indeks.add(j);
-                    } else {
-                        counter++;
-                    }
-                } else if (indeks.size() == 3) {
-                    if (x[j] == 'I') {
-                        indeks.add(j);
-                    } else {
-                        counter++;
-                    }
-                } else if (indeks.size() == 4) {
-                    if (x[j] == 'T') {
-                        indeks.add(j);
-                    } else {
-                        counter++;
-                    }
-                } else if (indeks.size() == 5) {
-                    if (x[j] == 'A') {
-                        indeks.add(j);
-                    } else {
-                        counter++;
-                    }
+            if (x[i] == 'S'){
+                num[0]++;
+            }
+            for (int j=1; j<6; j++) {
+                if (num[j-1] > num[j] && x[i] == chars[j]) {
+                    num[j]++;
                 }
             }
-            if (indeks.size() == 6) {
-                indeks = new ArrayList<>();
-            } else {
-                return counter;
-            }
         }
-        
-        return counter;
+
+        int minimum = num[0];
+        for (int i=1; i<6; i++) {
+            minimum = Math.min(minimum, num[i]);
+        }
+
+        return N-(minimum*6);
     }
 
     public static void main(String[] args) throws IOException {
