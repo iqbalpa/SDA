@@ -2,6 +2,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+// Kolaborator
+// 1. Aushaaf Fadhillah
+
 public class Lab1 {
     private static InputReader in;
     private static PrintWriter out;
