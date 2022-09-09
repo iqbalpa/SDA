@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
-// Kolaborator
-// 1. Aushaaf Fadhillah
+// Pembuatan array untuk menghitung kemunculan huruf adalah ide dari
+// Aushaaf Fadhillah, kemudian saya implementasikan koding-nya sendiri
 
 public class Lab1 {
     private static InputReader in;
