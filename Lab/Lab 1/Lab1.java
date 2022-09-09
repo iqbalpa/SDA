@@ -8,12 +8,24 @@ public class Lab1 {
 
     static int getTotalDeletedLetters(int N, char[] x) {
         // TODO: implement method getTotalDeletedLetter(int, char[]) to get the answer
+
+        // create new array
         int[] num = new int[6];
+
+        // create array of characters to compare
         char[] chars = {'S', 'O', 'F', 'I', 'T', 'A'};
+
+        // looping over x
         for (int i=0; i<N; i++){
+
+            // if the character is 'S'
+            // then increment the value of num[0]
             if (x[i] == 'S'){
                 num[0]++;
             }
+
+            // loop for comparing if the previous character is counted already
+            // then count the next character
             for (int j=1; j<6; j++) {
                 if (num[j-1] > num[j] && x[i] == chars[j]) {
                     num[j]++;
@@ -21,11 +33,15 @@ public class Lab1 {
             }
         }
 
+        // initialize the minimum value (as the number of SOFITA appearances)
         int minimum = num[0];
+
+        // loop to find the minimum value
         for (int i=1; i<6; i++) {
             minimum = Math.min(minimum, num[i]);
         }
 
+        // return the total of characters from user minus the multiply of minimum value and 6
         return N-(minimum*6);
     }
 
