@@ -24,45 +24,50 @@ public class Lab2 {
         } 
         // jika toples tidak kosong, return kue paling atas
         else {
-            return kanan.peek();
+            // jika rasa kue >= 0 dan <= 3
+            if (kanan.peek() >= 0 && kanan.peek() <= 3) {
+                return kanan.peek();
+            } 
+            // jika rasa kue < 0 atau > 3
+            else {
+                return -1;
+            }
         }
     }
 
     static int beliRasa(int rasa) {
         // TODO : Implementasi fitur beli rasa, manfaatkan fitur geser kanan
-        int counter = 0;
-
-        // jika raasa yg dicari ada di toples paling kiri, return 0
-        if (conveyorBelt.getLast().peek() == rasa) {
-
-            // hapus kue paling atas
-            conveyorBelt.getLast().pop();
-            return 0;
+        int counter = 0, i = 0;
+        
+        // loop sebanyak jumlah toples
+        while (i < JUMLAH_TOPLES) {
+            // jika toples kosong, geser kanan
+            if (conveyorBelt.getLast().empty()){
+                counter++;
+                Stack<Integer> kiri = conveyorBelt.removeLast();
+                conveyorBelt.addFirst(kiri);
+                continue;
+            } 
+            // jika toples tidak kosong
+            else {
+                // jika kue paling atas sama dengan rasa yang dicari, return counter
+                if (conveyorBelt.getLast().peek() == rasa){
+                    conveyorBelt.getLast().pop();
+                    return counter;
+                } 
+                // jika kue di toples paling kiri tidak sama dengan rasa,
+                // geser toples dan counter += 1
+                else if (conveyorBelt.getLast().peek() != rasa) {
+                    counter++;
+                    Stack<Integer> kiri = conveyorBelt.removeLast();
+                    conveyorBelt.addFirst(kiri);
+                } 
+            }
+            // increment i
+            i++;
         }
-
-        // counter + 1
-        counter++;
-
-        // memindahkan toples paling kiri ke posisi paling kanan
-        Stack<Integer> kiri = conveyorBelt.removeLast();
-        conveyorBelt.addFirst(kiri);
-
-        // loop untuk mengecek apakah rasa yg dicari ada di toples paling kiri,
-        // jika tidak, maka toples digeser ke kiri
-        while (conveyorBelt.getLast().peek() != rasa && counter != JUMLAH_TOPLES-1) {
-            counter++;
-            kiri = conveyorBelt.removeLast();
-            conveyorBelt.addFirst(kiri);
-        }
-
-        // jika rasa yang dicari tidak ada
-        if (counter == JUMLAH_TOPLES-1) {
-            return -1;
-        } 
-
-        // jika rasa yg dicari ada, return posisi toples dari sofita
-        conveyorBelt.getLast().pop();
-        return counter;
+        // return -1 untuk kasus selain di atas
+        return -1;
     }
 
     public static void main(String[] args) {
