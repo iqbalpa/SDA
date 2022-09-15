@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 // Pembuatan array untuk menghitung kemunculan huruf adalah ide dari
