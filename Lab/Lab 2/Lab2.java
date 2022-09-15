@@ -11,11 +11,19 @@ public class Lab2 {
 
     static int geserKanan() {
         // TODO : Implementasi fitur geser kanan conveyor belt
+
+        // menghapus dan mendapatkan toples (stack) paling kanan di conveyor belt (deque)
         Stack<Integer> kanan = conveyorBelt.removeFirst();
+
+        // menambahkan toples (stack) paling kanan di conveyor belt (deque) paling kiri
         conveyorBelt.addLast(kanan);
+
+        // jika toples kosong, return -1
         if (kanan.empty()) {
             return -1;
-        } else {
+        } 
+        // jika toples tidak kosong, return kue paling atas
+        else {
             return kanan.peek();
         }
     }
@@ -23,27 +31,41 @@ public class Lab2 {
     static int beliRasa(int rasa) {
         // TODO : Implementasi fitur beli rasa, manfaatkan fitur geser kanan
         int counter = 0;
+
+        // jika raasa yg dicari ada di toples paling kiri, return 0
         if (conveyorBelt.getLast().peek() == rasa) {
+
+            // hapus kue paling atas
             conveyorBelt.getLast().pop();
             return 0;
         }
+
+        // counter + 1
         counter++;
+
+        // memindahkan toples paling kiri ke posisi paling kanan
         Stack<Integer> kiri = conveyorBelt.removeLast();
         conveyorBelt.addFirst(kiri);
 
+        // loop untuk mengecek apakah rasa yg dicari ada di toples paling kiri,
+        // jika tidak, maka toples digeser ke kiri
         while (conveyorBelt.getLast().peek() != rasa && counter != JUMLAH_TOPLES-1) {
             counter++;
             kiri = conveyorBelt.removeLast();
             conveyorBelt.addFirst(kiri);
         }
 
+        // jika rasa yang dicari tidak ada
         if (counter == JUMLAH_TOPLES-1) {
             return -1;
-        } else if (conveyorBelt.getLast().size() == 1) {
+        } 
+        // jika rasa yg dicari ada, tapi itu kue terakhir di toples
+        else if (conveyorBelt.getLast().size() == 1) {
             conveyorBelt.getLast().pop();
             return -1;
         }
 
+        // jika rasa yg dicari ada, return posisi toples dari sofita
         conveyorBelt.getLast().pop();
         return counter;
     }
