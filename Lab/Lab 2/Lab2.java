@@ -59,11 +59,6 @@ public class Lab2 {
         if (counter == JUMLAH_TOPLES-1) {
             return -1;
         } 
-        // jika rasa yg dicari ada, tapi itu kue terakhir di toples
-        else if (conveyorBelt.getLast().size() == 1) {
-            conveyorBelt.getLast().pop();
-            return -1;
-        }
 
         // jika rasa yg dicari ada, return posisi toples dari sofita
         conveyorBelt.getLast().pop();
