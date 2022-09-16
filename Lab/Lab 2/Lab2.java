@@ -1,6 +1,9 @@
 import java.io.*;
 import java.util.*;
-import java.util.StringTokenizer;
+
+// kolaborator
+// 1. Eugenius Mario S
+// 2. Laela Putri Salsa Biella
 
 public class Lab2 {
     // TODO : Silahkan menambahkan struktur data yang diperlukan
