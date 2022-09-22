@@ -34,59 +34,33 @@ public class Lab3 {
     public static int getMaxRedVotes(int start, int end) {
         // TODO : Implementasikan solusi rekursif untuk mendapatkan skor vote maksimal
         // untuk RED pada subarray A[start ... end] (inklusif)
-        int sumLeft = 0;
-        int sumRight = 0;
-        int maxLeft = 0;
-        int maxRight = 0;
-        int center = (start + end) / 2;
-        if (start == end) {
-            return A[start] == 'R' ? 1 : 0;
+        int max = 0;
+        int red = 0;
+        int blue = 0;
+        int redVotes = 0;
+
+        if (start == end){
+            max = A[start] == 'R' ? 1 : 0;
+        } else if (start > end) {
+            max = 0;
         }
 
-        sumLeft = getMaxRedVotes(start, center);
-        sumRight = getMaxRedVotes(center + 1, end);
-        
-        for (int i=center; i>=0; i--){
-            sumLeft = countRedVotes(A, i, center);
-            if (sumLeft > maxLeft){
-                maxLeft = sumLeft;
-            }
-        }
-        for (int i=center+1; i<=end; i++){
-            sumRight = countRedVotes(A, center+1, i);
-            if (sumRight > maxRight){
-                maxRight = sumRight;
-            }
-        }
-
-        return max3(maxLeft, maxRight, maxLeft + maxRight);
-    }
-
-    // helper method for counting votes
-    public static int countRedVotes(char[] array, int start, int end) {
-        int R = 0;
-        int B = 0;
-        int[] result = new int[2]; // result[0] = R, result[1] = B
-        for (int i = start; i <= end; i++) {
-            if (array[i] == 'R') {
-                R++;
+        for (int i=start; i<=end; i++){
+            if (A[i] == 'R'){
+                red++;
             } else {
-                B++;
+                blue++;
             }
+
+            if (red > blue){
+                redVotes = red + blue;
+            } else {
+                redVotes = 0;
+            }
+
+            max = Math.max(max, redVotes + getMaxRedVotes(i+1, end));
         }
-        if (R > B) {
-            R += B;
-            B = 0;
-        } else {
-            B += R;
-            R = 0;
-        }
-        result[0] = R;
-        result[1] = B;
-        return R;
-    }
-    public static int max3(int a, int b, int c) {
-        return Math.max(a, Math.max(b, c));
+        return max;
     }
 
     // taken from https://codeforces.com/submissions/Petr
