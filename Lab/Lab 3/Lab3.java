@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 import java.util.StringTokenizer;
 
 public class Lab3 {
@@ -7,6 +8,9 @@ public class Lab3 {
 
     public static char[] A;
     public static int N;
+    
+    static Map<Integer, Integer> map = new HashMap<>();
+    static int[] list = new int[1001];
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -43,8 +47,11 @@ public class Lab3 {
             max = A[start] == 'R' ? 1 : 0;
         } else if (start > end) {
             max = 0;
+        } else if (list[start] != 0) {
+            return list[start];
         }
 
+        // int temp = 0;
         for (int i=start; i<=end; i++){
             if (A[i] == 'R'){
                 red++;
@@ -58,8 +65,15 @@ public class Lab3 {
                 redVotes = 0;
             }
 
+            // if (map.containsKey(start)){
+            //     temp = map.get(start);
+            // } else {
+            //     temp = redVotes + getMaxRedVotes(i+1, end);
+            //     map.put(start, temp);
+            // }
             max = Math.max(max, redVotes + getMaxRedVotes(i+1, end));
         }
+        list[start] = max;
         return max;
     }
 

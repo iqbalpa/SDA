@@ -11,9 +11,9 @@ for i in range(jml_query):
 
 matches = 0
 for i in range(jml_query):
+    print(f"{ans1[i]:<3}||{ans2[i]:>3}     ===     {ans1[i] == ans2[i]}")
     if ans1[i] == ans2[i]:
         matches += 1
-        print(f"{ans1[i]:<3}||{ans2[i]:>3}     ===     {ans1[i] == ans2[i]}")
 
 print()
 print(f"matches: {matches}/{jml_query} ({matches/jml_query*100}%)")
