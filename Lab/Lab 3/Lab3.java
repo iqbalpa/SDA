@@ -37,6 +37,30 @@ public class Lab3 {
         return -1;
     }
 
+    // helper method for counting RED votes
+    public static int[] countVotes(char[] arr) {
+        int R = 0;
+        int B = 0;
+        int[] result = new int[2]; // result[0] = R, result[1] = B
+        for (char c: arr) {
+            if (c == 'R') {
+                R++;
+            } else {
+                B++;
+            }
+        }
+        if (R > B) {
+            R += B;
+            B = 0;
+        } else {
+            B += R;
+            R = 0;
+        }
+        result[0] = R;
+        result[1] = B;
+        return result;
+    }
+
     // taken from https://codeforces.com/submissions/Petr
     // together with PrintWriter, these input-output (IO) is much faster than the
     // usual Scanner(System.in) and System.out
