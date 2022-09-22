@@ -10,7 +10,7 @@ public class Lab3 {
     public static int N;
     
     static Map<Integer, Integer> map = new HashMap<>();
-    static int[] list = new int[1001];
+    public static int[] list = new int[1010];
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -21,6 +21,11 @@ public class Lab3 {
         // Inisialisasi Array Input
         N = in.nextInt();
         A = new char[N];
+
+        // inisiasi list
+        for (int i=0; i<1010; i++) {
+            list[i] = -99;
+        }
 
         // Membaca File Input
         for (int i = 0; i < N; i++) {
@@ -44,10 +49,10 @@ public class Lab3 {
         int redVotes = 0;
 
         if (start == end){
-            max = A[start] == 'R' ? 1 : 0;
+            return A[start] == 'R' ? 1 : 0;
         } else if (start > end) {
-            max = 0;
-        } else if (list[start] != 0) {
+            return 0;
+        } else if (list[start] != -99) {
             return list[start];
         }
 
