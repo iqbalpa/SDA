@@ -2,6 +2,11 @@ import java.io.*;
 import java.util.*;
 import java.util.StringTokenizer;
 
+// collaborators and ideas by 
+// 1. Aushaaf Fadhilah A
+// 2. Laela Putri Salsa Biella
+// 3. Daffa Ilham R
+
 public class Lab3 {
     private static InputReader in;
     private static PrintWriter out;
@@ -9,6 +14,7 @@ public class Lab3 {
     public static char[] A;
     public static int N;
     
+    // map untuk memoization
     static Map<Integer, Integer> map = new HashMap<>();
 
     public static void main(String[] args) {
@@ -41,30 +47,46 @@ public class Lab3 {
         int red = 0;
         int blue = 0;
         int redVotes = 0;
-
+        
+        // base case
+        // return 1 jika R dan 0 jika B
         if (start == end){
             return A[start] == 'R' ? 1 : 0;
-        } else if (start > end) {
+        } 
+        // jika index start dan end udah crossing, return 0
+        else if (start > end) {
             return 0;
-        } else if (map.containsKey(start)){
+        } 
+        // jika di map udah ada, maka akan langsung return
+        else if (map.containsKey(start)){
             return map.get(start);
         }
 
         for (int i=start; i<=end; i++){
+
+            // jika vote adalah R
             if (A[i] == 'R'){
                 red++;
-            } else {
+            } 
+            // jika vote adalah B
+            else {
                 blue++;
             }
 
+            // jika jumlah votes red > votes blue
             if (red > blue){
                 redVotes = red + blue;
-            } else {
+            } 
+            // jika jumlah votes red < votes blue
+            else {
                 redVotes = 0;
             }
 
+            // cari max dengan recursive
             max = Math.max(max, redVotes + getMaxRedVotes(i+1, end));
         }
+
+        // masukkan value max ke map dengan key start
         map.put(start, max);
         return max;
     }
