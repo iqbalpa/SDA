@@ -16,9 +16,11 @@ public class TP1 {
         
         // banyak koki
         int V = input.nextInt();
-        String[] spesialisasi = new String[V];
+        Koki[] arrKoki = new Koki[V];
         for (int i = 0; i < V; i++) {
-            spesialisasi[i] = input.next();
+            String spesialisasi =  input.next();
+            Koki newKoki = new Koki(spesialisasi);
+            arrKoki[i] = newKoki;
         }
 
         // banyak pelanggan
@@ -53,15 +55,34 @@ public class TP1 {
 
             pelayananHariKe[i] = input.nextInt();
             // fungsi pelayanan
-            // P
-            // L
-            // B
-            // C
-            // D
+            for (int j=0; j<pelayananHariKe[i]; j++){
+                int satu;
+                int dua;
+                int tiga;
+                char pelayanan = input.next().charAt(0);
+                if (pelayanan == 'P'){
+                    satu = input.nextInt();
+                    dua = input.nextInt();
+                } else if (pelayanan == 'B'){
+                    satu = input.nextInt();
+                } else if (pelayanan == 'C'){
+                    satu = input.nextInt();
+                } else if (pelayanan == 'D'){
+                    satu = input.nextInt();
+                    dua = input.nextInt();
+                    tiga = input.nextInt();
+                }
+            }
         }
 
         input.close();
     }
+
+    public void P(int idPelanggan, int indexMakanan){}
+    public void L(){}
+    public void B(int idPelanggan){}
+    public void C(int Q){}
+    public void D(int A, int G, int S){}
 }
 
 class Menu {
@@ -90,5 +111,15 @@ class Pelanggan {
         this.I = I;
         this.K = K;
         this.U = U;
+    }
+}
+
+class Koki {
+    String spesialisasi;
+    int jumlahPelayanan;
+
+    public Koki(String spesialisasi){
+        this.spesialisasi = spesialisasi;
+        this.jumlahPelayanan = 0;
     }
 }
