@@ -4,7 +4,10 @@ public class TP1 {
     static Menu[] arrMenu;
     static Koki[] arrKoki;
     static Pelanggan[] arrPelanggan;
+    static LinkedList<Integer> sedangMakan = new LinkedList<>();
+    static LinkedList<Integer> blackList = new LinkedList<>();
     static Queue<Menu> pesanan = new LinkedList<>();
+    static Queue<Integer> ruangLapar = new LinkedList<>();
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
@@ -38,20 +41,20 @@ public class TP1 {
         // array pelanggan
         arrPelanggan = new Pelanggan[P];
         // jumlah pelanggan per hari
-        int[] PelangganPerHari = new int[Y];
+        int[] pelangganHariKe = new int[Y];
         // jumlah pelayanan per hari
-        int[] pelayananPerHari = new int[Y];
+        int[] pelayananHariKe = new int[Y];
 
         for (int i = 0; i < Y; i++) {
-            PelangganPerHari[i] = input.nextInt();
-            for (int j=0; j<PelangganPerHari[i]; j++){
+            pelangganHariKe[i] = input.nextInt();
+            for (int j=0; j<pelangganHariKe[i]; j++){
                 int I = input.nextInt();
                 char K = input.next().charAt(0);
                 int U = input.nextInt();
+
                 Pelanggan newPelanggan;
                 if (K == '?'){
                     int R = input.nextInt();
-
                     // advance scanning
                     int negatif = 0;
                     int positif = 0;
@@ -61,19 +64,22 @@ public class TP1 {
                         } else {
                             positif++;
                         }
-                        K = negatif < positif ? '+' : '-';
                     }
-                    newPelanggan = new Pelanggan(I, K, U, R);
-
-                } else {
-                    newPelanggan = new Pelanggan(I, K, U);
-                }
+                    K = negatif < positif ? '+' : '-';
+                } 
+                newPelanggan = new Pelanggan(I, K, U);
                 arrPelanggan[I] = newPelanggan;
+
+                if (j <= N){
+                    sedangMakan.add(I);
+                } else {
+                    ruangLapar.add(I);
+                }
             }
 
-            pelayananPerHari[i] = input.nextInt();
+            pelayananHariKe[i] = input.nextInt();
             // fungsi pelayanan
-            for (int j=0; j<pelayananPerHari[i]; j++){
+            for (int j=0; j<pelayananHariKe[i]; j++){
                 int satu;
                 int dua;
                 int tiga;
@@ -99,6 +105,7 @@ public class TP1 {
     public void P(int idPelanggan, int indexMakanan){
         Koki theKoki = arrKoki[0];
         Menu theMenu = arrMenu[indexMakanan];
+        Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         int indexKoki = 0;
         for (int i=0; i<arrKoki.length; i++){
             if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
@@ -113,6 +120,7 @@ public class TP1 {
                 }
             }
         }
+        thePelanggan.tagihan += theMenu.harga;
         pesanan.add(theMenu);
         theKoki.jumlahMelayani++;
     }
@@ -123,7 +131,17 @@ public class TP1 {
             pesanan.remove();
         }
     }
-    public void B(int idPelanggan){}
+    public void B(int idPelanggan){
+        Pelanggan thePelanggan = arrPelanggan[idPelanggan];
+        if (thePelanggan.U < thePelanggan.tagihan){
+            blackList.add(thePelanggan.I);
+        } else {
+            thePelanggan.U -= thePelanggan.tagihan;
+        }
+        sedangMakan.remove(idPelanggan);
+        int idNewPelanggan = ruangLapar.remove();
+        sedangMakan.add(idNewPelanggan);
+    }
     public void C(int Q){}
     public void D(int A, int G, int S){}
 }
@@ -143,18 +161,13 @@ class Pelanggan {
     int I; // id pelanggan
     char K; // status kesehatan
     int U; // jumlah uang
-    int R; // range advance scanning
-
-    public Pelanggan(int I, char K, int U, int R) {
-        this.I = I;
-        this.K = K;
-        this.U = U;
-        this.R = R;
-    }
+    int tagihan;
+  
     public Pelanggan(int I, char K, int U) {
         this.I = I;
         this.K = K;
         this.U = U;
+        this.tagihan = 0;
     }
 }
 
