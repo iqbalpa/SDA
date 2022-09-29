@@ -2,11 +2,12 @@ import java.util.*;
 
 public class TP1 {
     static Menu[] arrMenu;
-    static Koki[] arrKoki;
+    // static Koki[] arrKoki;
+    static List<Koki> arrKoki = new ArrayList<>();
     static Pelanggan[] arrPelanggan;
     static LinkedList<Integer> sedangMakan = new LinkedList<>();
     static LinkedList<Integer> blackList = new LinkedList<>();
-    static Queue<Menu> pesanan = new LinkedList<>();
+    static Queue<Pesanan> pesanan = new LinkedList<>();
     static Queue<Integer> ruangLapar = new LinkedList<>();
 
     public static void main(String[] args) {
@@ -24,11 +25,12 @@ public class TP1 {
         
         // banyak koki
         int V = input.nextInt();
-        arrKoki = new Koki[V];
+        // arrKoki = new Koki[V];
         for (int i = 0; i < V; i++) {
             String spesialisasi =  input.next();
-            Koki newKoki = new Koki(spesialisasi);
-            arrKoki[i] = newKoki;
+            Koki newKoki = new Koki(spesialisasi, i);
+            // arrKoki[i] = newKoki;
+            arrKoki.add(newKoki);
         }
 
         // banyak pelanggan
@@ -103,31 +105,34 @@ public class TP1 {
     }
 
     public void P(int idPelanggan, int indexMakanan){
-        Koki theKoki = arrKoki[0];
+        // Koki theKoki = arrKoki[0];
+        Koki theKoki = arrKoki.get(0);
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         int indexKoki = 0;
-        for (int i=0; i<arrKoki.length; i++){
-            if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
+        for (int i=0; i<arrKoki.size(); i++){
+            if (arrKoki.get(i).spesialisasi.equals(theMenu.tipe)){
                 if (!theKoki.spesialisasi.equals(theMenu.tipe)){
-                    theKoki = arrKoki[i];
+                    theKoki = arrKoki.get(i);
                     indexKoki = i;
-                } else if (theKoki.jumlahMelayani > arrKoki[i].jumlahMelayani){
-                    theKoki = arrKoki[i];
+                } else if (theKoki.jumlahMelayani > arrKoki.get(i).jumlahMelayani){
+                    theKoki = arrKoki.get(i);
                     indexKoki = i;
-                } else if (theKoki.jumlahMelayani == arrKoki[i].jumlahMelayani && i > indexKoki) {
-                    theKoki = arrKoki[indexKoki];
+                } else if (theKoki.jumlahMelayani == arrKoki.get(i).jumlahMelayani && i > indexKoki) {
+                    theKoki = arrKoki.get(indexKoki);
                 }
             }
         }
         thePelanggan.tagihan += theMenu.harga;
-        pesanan.add(theMenu);
+
+        Pesanan newPesanan = new Pesanan(theMenu, theKoki);
+        pesanan.add(newPesanan);
         theKoki.jumlahMelayani++;
     }
     public void L(){
-        for (Menu m: pesanan){
-            m.koki.jumlahMelayani--;
-            m.koki.jumlahPelayanan++;
+        for (Pesanan p: pesanan){
+            p.koki.jumlahMelayani--;
+            p.koki.jumlahPelayanan++;
             pesanan.remove();
         }
     }
@@ -142,18 +147,33 @@ public class TP1 {
         int idNewPelanggan = ruangLapar.remove();
         sedangMakan.add(idNewPelanggan);
     }
-    public void C(int Q){}
+    public void C(int Q){
+        Collections.sort(arrKoki);
+        for (int i=0; i<Q; i++){
+            System.out.println(arrKoki.get(i).id);
+        }
+    }
     public void D(int A, int G, int S){}
 }
 
 class Menu {
     int harga;
     String tipe;
-    Koki koki;
+    // Koki koki;
 
     public Menu(int harga, String tipe) {
         this.harga = harga;
         this.tipe = tipe;
+    }
+}
+
+class Pesanan {
+    Menu menu;
+    Koki koki;
+
+    public Pesanan(Menu menu, Koki koki){
+        this.menu = menu;
+        this.koki = koki;
     }
 }
 
@@ -171,14 +191,37 @@ class Pelanggan {
     }
 }
 
-class Koki {
+class Koki implements Comparable<Koki>{
     String spesialisasi;
     int jumlahPelayanan;
     int jumlahMelayani;
+    int id;
 
-    public Koki(String spesialisasi){
+    public Koki(String spesialisasi, int id){
         this.spesialisasi = spesialisasi;
         this.jumlahPelayanan = 0;
         this.jumlahMelayani = 0;
+        this.id = id;
+    }
+
+    // hasnt done yet
+    public int compareTo(Koki k){
+        if (this.jumlahPelayanan > k.jumlahPelayanan){
+            return 1;
+        } else if (this.jumlahPelayanan < k.jumlahPelayanan){
+            return -1;
+        } else {
+            if (this.spesialisasi.equals(k.spesialisasi)){
+                return this.id > k.id ? 1 : -1;
+            } else if (this.spesialisasi.equals("Airfood")){
+                return 1;
+            } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Seafood")){
+                return 1;
+            } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Airfood")){
+                return -1;
+            } else {
+                return 1;
+            }
+        }
     }
 }
