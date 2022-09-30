@@ -5,13 +5,16 @@ public class TP1 {
     static Koki[] arrKoki;
     // static List<Koki> arrKoki = new ArrayList<>();
     static Pelanggan[] arrPelanggan;
-    static LinkedList<Integer> sedangMakan = new LinkedList<>();
+    // static LinkedList<Integer> sedangMakan = new LinkedList<>();
+    static LinkedList<Pelanggan> sedangMakan = new LinkedList<>();
     static LinkedList<Integer> blackList = new LinkedList<>();
     static Queue<Pesanan> pesanan = new LinkedList<>();
     static Queue<Integer> ruangLapar = new LinkedList<>();
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
+        // sedangMakan.add(-1);
+        // blackList.add(-1);
 
         // banyak menu
         int M = input.nextInt();
@@ -25,8 +28,8 @@ public class TP1 {
         
         // banyak koki
         int V = input.nextInt();
-        arrKoki = new Koki[V];
-        for (int i = 0; i < V; i++) {
+        arrKoki = new Koki[V+1];
+        for (int i = 1; i <= V; i++) {
             String spesialisasi =  input.next();
             Koki newKoki = new Koki(spesialisasi, i);
             arrKoki[i] = newKoki;
@@ -55,7 +58,7 @@ public class TP1 {
                 int U = input.nextInt();
 
                 if (blackList.contains(I)){
-                    System.out.print("====" + 3 + " blacklist");
+                    System.out.print("===" + 3 + " blacklist");
                 } else {
                     Pelanggan newPelanggan;
                     if (K == '?'){
@@ -72,19 +75,21 @@ public class TP1 {
                         }
                         K = negatif < positif ? '+' : '-';
                     } 
-                    newPelanggan = new Pelanggan(I, K, U);
-                    arrPelanggan[I] = newPelanggan;
 
-                    if (j <= N){
-                        sedangMakan.add(I);
-                        if (K == '+'){
-                            System.out.println("====" + 0 + " positif");
-                        } else {
-                            System.out.println("====" + 1 + " tidak masalah");
-                        }
+                    if (K == '+'){
+                        System.out.println("===" + 0 + " positif");
                     } else {
-                        ruangLapar.add(I);
-                        System.out.println("====" + 2 + " masuk ruang lapar");
+                        newPelanggan = new Pelanggan(I, K, U);
+                        arrPelanggan[I] = newPelanggan;
+    
+                        if (j <= N){
+                            // sedangMakan.add(I);
+                            sedangMakan.add(newPelanggan);
+                            System.out.println("===" + 1 + " tidak masalah");
+                        } else {
+                            ruangLapar.add(I);
+                            System.out.println("===" + 2 + " masuk ruang lapar");
+                        }
                     }
                 }
             }
@@ -117,12 +122,12 @@ public class TP1 {
     }
 
     public static void P(int idPelanggan, int indexMakanan){
-        Koki theKoki = arrKoki[0];
+        Koki theKoki = arrKoki[1];
         // Koki theKoki = arrKoki.get(0);
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
-        int indexKoki = 0;
-        for (int i=0; i<arrKoki.length; i++){
+        int indexKoki = 1;
+        for (int i=1; i<=arrKoki.length-1; i++){
             if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
                 if (!theKoki.spesialisasi.equals(theMenu.tipe)){
                     theKoki = arrKoki[i];
@@ -159,16 +164,15 @@ public class TP1 {
             System.out.println("===" + 1 + " uang cukup");
             thePelanggan.U -= thePelanggan.tagihan;
         }
-        sedangMakan.remove(idPelanggan);
-        int idNewPelanggan = ruangLapar.remove();
-        sedangMakan.add(idNewPelanggan);
+        System.out.println("size sedang makan " + sedangMakan.size());
+        System.out.println("size ruang lapar " + ruangLapar.size());
+        sedangMakan.remove(thePelanggan);
+        if (ruangLapar.size() != 0){
+            int idNewPelanggan = ruangLapar.remove();
+            sedangMakan.add(arrPelanggan[idNewPelanggan]);
+        }
     }
-    public static void C(int Q){
-        // Collections.sort(arrKoki);
-        // for (int i=0; i<Q; i++){
-        //     System.out.println(arrKoki.get(i).id);
-        // }
-    }
+    public static void C(int Q){}
     public static void D(int A, int G, int S){}
 }
 
