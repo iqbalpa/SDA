@@ -3,9 +3,7 @@ import java.util.*;
 public class TP1 {
     static Menu[] arrMenu;
     static Koki[] arrKoki;
-    // static List<Koki> arrKoki = new ArrayList<>();
     static Pelanggan[] arrPelanggan;
-    // static LinkedList<Integer> sedangMakan = new LinkedList<>();
     static LinkedList<Pelanggan> sedangMakan = new LinkedList<>();
     static LinkedList<Integer> blackList = new LinkedList<>();
     static Queue<Pesanan> pesanan = new LinkedList<>();
@@ -13,8 +11,6 @@ public class TP1 {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        // sedangMakan.add(-1);
-        // blackList.add(-1);
 
         // banyak menu
         int M = input.nextInt();
@@ -33,7 +29,6 @@ public class TP1 {
             String spesialisasi =  input.next();
             Koki newKoki = new Koki(spesialisasi, i);
             arrKoki[i] = newKoki;
-            // arrKoki.add(newKoki);
         }
 
         // banyak pelanggan
@@ -58,7 +53,6 @@ public class TP1 {
                 int U = input.nextInt();
 
                 if (blackList.contains(I)){
-                    // System.out.print("===" + 3 + " blacklist");
                     System.out.print(3);
                 } else {
                     Pelanggan newPelanggan;
@@ -78,21 +72,17 @@ public class TP1 {
                     } 
 
                     if (K == '+'){
-                        // System.out.println("===" + 0 + " positif");
                         System.out.print(0);
                     } else {
                         newPelanggan = new Pelanggan(I, K, U);
                         arrPelanggan[I] = newPelanggan;
     
                         if (j <= N){
-                            // sedangMakan.add(I);
                             sedangMakan.add(newPelanggan);
                             System.out.print(1);
-                            // System.out.println("===" + 1 + " tidak masalah");
                         } else {
                             ruangLapar.add(I);
                             System.out.print(2);
-                            // System.out.println("===" + 2 + " masuk ruang lapar");
                         }
                     }
                 }
@@ -132,27 +122,17 @@ public class TP1 {
 
     public static void P(int idPelanggan, int indexMakanan){
         Koki theKoki = arrKoki[1];
-        // Koki theKoki = arrKoki.get(0);
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
-        // int indexKoki = 1;
         for (int i=2; i<=arrKoki.length-1; i++){
-            // System.out.printf("i: %d || id: %d || spesialisasi: %s%n", i, arrKoki[i].id, arrKoki[i].spesialisasi);
             if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
                 if (!theKoki.spesialisasi.equals(theMenu.tipe)){
-                    // System.out.println(i + "satu");
                     theKoki = arrKoki[i];
-                    // indexKoki = i;
                 } else {
                     if (theKoki.jumlahMelayani > arrKoki[i].jumlahMelayani){
-                    // if (theKoki.jumlahPelayanan > arrKoki[i].jumlahPelayanan){
-                        // System.out.println(i + "dua");
                         theKoki = arrKoki[i];
-                        // indexKoki = i;
                     } 
                     else if (theKoki.jumlahMelayani == arrKoki[i].jumlahMelayani && i > theKoki.id) {
-                    // else if (theKoki.jumlahPelayanan == arrKoki[i].jumlahPelayanan && i > theKoki.id){
-                        // System.out.println(i + "tiga"); 
                         theKoki = arrKoki[theKoki.id];
                     }
                 }
@@ -162,34 +142,24 @@ public class TP1 {
 
         Pesanan newPesanan = new Pesanan(theMenu, theKoki, thePelanggan);
         pesanan.add(newPesanan);
-        // theKoki.jumlahMelayani++;
-        // System.out.println("===" + theKoki.id + " index koki");
         System.out.println(theKoki.id);
     }
     public static void L(){
         for (Pesanan p: pesanan){
-            // p.koki.jumlahMelayani--;
-            // p.koki.jumlahPelayanan++;
             p.koki.jumlahMelayani++;
-            // System.out.println("==="+ p.pelanggan.I + " id pemesan");
             System.out.println(p.pelanggan.I);
-            // pesanan.remove();
             pesanan.poll();
         }
     }
     public static void B(int idPelanggan){
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         if (thePelanggan.U < thePelanggan.tagihan){
-            // System.out.println("===" + 0 + " uang tidak cukup");
             System.out.println(0);
             blackList.add(thePelanggan.I);
         } else {
-            // System.out.println("===" + 1 + " uang cukup");
             System.out.println(1);
             thePelanggan.U -= thePelanggan.tagihan;
         }
-        // System.out.println("size sedang makan " + sedangMakan.size());
-        // System.out.println("size ruang lapar " + ruangLapar.size());
         sedangMakan.remove(thePelanggan);
         if (ruangLapar.size() != 0){
             int idNewPelanggan = ruangLapar.remove();
