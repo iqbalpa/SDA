@@ -167,7 +167,7 @@ public class TP1 {
         }
     }
     public static void C(int Q){
-        Arrays.sort(arrKoki, 1, arrKoki.length-1);
+        Arrays.sort(arrKoki, 1, arrKoki.length);
         for (int i=1; i<=Q; i++){
             System.out.print(arrKoki[i].id + " ");
         }
@@ -239,8 +239,12 @@ class Koki implements Comparable<Koki> {
                 return 1;
             } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Airfood")){
                 return -1;
-            } else {
-                return 1;
+            } 
+            // else if (this.spesialisasi.equals("Seafood")){
+            //     return -1;
+            // } 
+            else {
+                return -1;
             }
         }
     }
