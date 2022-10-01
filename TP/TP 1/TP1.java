@@ -58,7 +58,8 @@ public class TP1 {
                 int U = input.nextInt();
 
                 if (blackList.contains(I)){
-                    System.out.print("===" + 3 + " blacklist");
+                    // System.out.print("===" + 3 + " blacklist");
+                    System.out.print(3);
                 } else {
                     Pelanggan newPelanggan;
                     if (K == '?'){
@@ -77,7 +78,8 @@ public class TP1 {
                     } 
 
                     if (K == '+'){
-                        System.out.println("===" + 0 + " positif");
+                        // System.out.println("===" + 0 + " positif");
+                        System.out.print(0);
                     } else {
                         newPelanggan = new Pelanggan(I, K, U);
                         arrPelanggan[I] = newPelanggan;
@@ -85,14 +87,18 @@ public class TP1 {
                         if (j <= N){
                             // sedangMakan.add(I);
                             sedangMakan.add(newPelanggan);
-                            System.out.println("===" + 1 + " tidak masalah");
+                            System.out.print(1);
+                            // System.out.println("===" + 1 + " tidak masalah");
                         } else {
                             ruangLapar.add(I);
-                            System.out.println("===" + 2 + " masuk ruang lapar");
+                            System.out.print(2);
+                            // System.out.println("===" + 2 + " masuk ruang lapar");
                         }
                     }
                 }
+                System.out.print(" ");
             }
+            System.out.println();
 
             pelayananHariKe[i] = input.nextInt();
             // fungsi pelayanan
@@ -105,11 +111,14 @@ public class TP1 {
                     satu = input.nextInt();
                     dua = input.nextInt();
                     P(satu, dua);
+                } else if (pelayanan == 'L'){
+                    L();
                 } else if (pelayanan == 'B'){
                     satu = input.nextInt();
                     B(satu);
                 } else if (pelayanan == 'C'){
                     satu = input.nextInt();
+                    C(satu);
                 } else if (pelayanan == 'D'){
                     satu = input.nextInt();
                     dua = input.nextInt();
@@ -126,17 +135,26 @@ public class TP1 {
         // Koki theKoki = arrKoki.get(0);
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
-        int indexKoki = 1;
-        for (int i=1; i<=arrKoki.length-1; i++){
+        // int indexKoki = 1;
+        for (int i=2; i<=arrKoki.length-1; i++){
+            // System.out.printf("i: %d || id: %d || spesialisasi: %s%n", i, arrKoki[i].id, arrKoki[i].spesialisasi);
             if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
                 if (!theKoki.spesialisasi.equals(theMenu.tipe)){
+                    // System.out.println(i + "satu");
                     theKoki = arrKoki[i];
-                    indexKoki = i;
-                } else if (theKoki.jumlahMelayani > arrKoki[i].jumlahMelayani){
-                    theKoki = arrKoki[i];
-                    indexKoki = i;
-                } else if (theKoki.jumlahMelayani == arrKoki[i].jumlahMelayani && i > indexKoki) {
-                    theKoki = arrKoki[indexKoki];
+                    // indexKoki = i;
+                } else {
+                    if (theKoki.jumlahMelayani > arrKoki[i].jumlahMelayani){
+                    // if (theKoki.jumlahPelayanan > arrKoki[i].jumlahPelayanan){
+                        // System.out.println(i + "dua");
+                        theKoki = arrKoki[i];
+                        // indexKoki = i;
+                    } 
+                    else if (theKoki.jumlahMelayani == arrKoki[i].jumlahMelayani && i > theKoki.id) {
+                    // else if (theKoki.jumlahPelayanan == arrKoki[i].jumlahPelayanan && i > theKoki.id){
+                        // System.out.println(i + "tiga"); 
+                        theKoki = arrKoki[theKoki.id];
+                    }
                 }
             }
         }
@@ -144,35 +162,46 @@ public class TP1 {
 
         Pesanan newPesanan = new Pesanan(theMenu, theKoki, thePelanggan);
         pesanan.add(newPesanan);
-        theKoki.jumlahMelayani++;
-        System.out.println("===" + indexKoki + " index koki");
+        // theKoki.jumlahMelayani++;
+        // System.out.println("===" + theKoki.id + " index koki");
+        System.out.println(theKoki.id);
     }
     public static void L(){
         for (Pesanan p: pesanan){
-            p.koki.jumlahMelayani--;
-            p.koki.jumlahPelayanan++;
+            // p.koki.jumlahMelayani--;
+            // p.koki.jumlahPelayanan++;
+            p.koki.jumlahMelayani++;
+            // System.out.println("==="+ p.pelanggan.I + " id pemesan");
             System.out.println(p.pelanggan.I);
-            pesanan.remove();
+            // pesanan.remove();
+            pesanan.poll();
         }
     }
     public static void B(int idPelanggan){
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         if (thePelanggan.U < thePelanggan.tagihan){
-            System.out.println("===" + 0 + " uang tidak cukup");
+            // System.out.println("===" + 0 + " uang tidak cukup");
+            System.out.println(0);
             blackList.add(thePelanggan.I);
         } else {
-            System.out.println("===" + 1 + " uang cukup");
+            // System.out.println("===" + 1 + " uang cukup");
+            System.out.println(1);
             thePelanggan.U -= thePelanggan.tagihan;
         }
-        System.out.println("size sedang makan " + sedangMakan.size());
-        System.out.println("size ruang lapar " + ruangLapar.size());
+        // System.out.println("size sedang makan " + sedangMakan.size());
+        // System.out.println("size ruang lapar " + ruangLapar.size());
         sedangMakan.remove(thePelanggan);
         if (ruangLapar.size() != 0){
             int idNewPelanggan = ruangLapar.remove();
             sedangMakan.add(arrPelanggan[idNewPelanggan]);
         }
     }
-    public static void C(int Q){}
+    public static void C(int Q){
+        Arrays.sort(arrKoki, 1, arrKoki.length-1);
+        for (int i=1; i<=Q; i++){
+            System.out.print(arrKoki[i].id + " ");
+        }
+    }
     public static void D(int A, int G, int S){}
 }
 
@@ -212,7 +241,7 @@ class Pelanggan {
     }
 }
 
-class Koki{
+class Koki implements Comparable<Koki> {
     String spesialisasi;
     int jumlahPelayanan;
     int jumlahMelayani;
@@ -226,23 +255,23 @@ class Koki{
     }
 
     // hasnt done yet
-    // public int compareTo(Koki k){
-    //     if (this.jumlahPelayanan > k.jumlahPelayanan){
-    //         return 1;
-    //     } else if (this.jumlahPelayanan < k.jumlahPelayanan){
-    //         return -1;
-    //     } else {
-    //         if (this.spesialisasi.equals(k.spesialisasi)){
-    //             return this.id > k.id ? 1 : -1;
-    //         } else if (this.spesialisasi.equals("Airfood")){
-    //             return 1;
-    //         } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Seafood")){
-    //             return 1;
-    //         } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Airfood")){
-    //             return -1;
-    //         } else {
-    //             return 1;
-    //         }
-    //     }
-    // }
+    public int compareTo(Koki k){
+        if (this.jumlahMelayani > k.jumlahMelayani){
+            return 1;
+        } else if (this.jumlahMelayani < k.jumlahMelayani){
+            return -1;
+        } else {
+            if (this.spesialisasi.equals(k.spesialisasi)){
+                return this.id > k.id ? 1 : -1;
+            } else if (this.spesialisasi.equals("Airfood")){
+                return 1;
+            } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Seafood")){
+                return 1;
+            } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Airfood")){
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+    }
 }
