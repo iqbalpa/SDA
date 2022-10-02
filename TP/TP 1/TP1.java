@@ -12,6 +12,8 @@ public class TP1 {
     static LinkedList<Integer> blackList = new LinkedList<>();
     static Queue<Pesanan> pesanan = new LinkedList<>();
     static Queue<Integer> ruangLapar = new LinkedList<>();
+    // static Map<Integer[], Integer> map = new HashMap<>();
+    static Set<Integer[]> dp = new TreeSet<>();
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -124,6 +126,7 @@ public class TP1 {
                     satu = in.nextInt();
                     dua = in.nextInt();
                     tiga = in.nextInt();
+                    D(satu, dua, tiga);
                 }
             }
         }
@@ -188,6 +191,22 @@ public class TP1 {
     }
     public static void D(int A, int G, int S){
 
+    }
+    public static void helperD(int start){
+        Integer[] index = new Integer[2];
+        index[0] = start;
+        Menu awal = arrMenu[start];
+        for (int i=start+1; i<=arrMenu.length-1; i++){
+            index[1] = i;
+            if (arrMenu[i].tipe.equals(awal.tipe)){
+                if (dp.contains(index)){
+                    continue;
+                } else {
+                    dp.add(index);
+                }
+            }
+        }
+        helperD(start+1);
     }
 
 
