@@ -5,6 +5,9 @@ public class TP1 {
     private static InputReader in;
     private static PrintWriter out;
 
+    static int M;
+    static int V;
+
     static Menu[] arrMenu;
     static Koki[] arrKoki;
     static Pelanggan[] arrPelanggan;
@@ -22,8 +25,8 @@ public class TP1 {
         out = new PrintWriter(outputStream);
 
         // banyak menu
-        int M = in.nextInt();
-        arrMenu = new Menu[M+1];
+        M = in.nextInt();
+        arrMenu = new Menu[M+6];
         for (int i = 1; i <= M; i++) {
             int harga = in.nextInt();
             String tipe = in.next();
@@ -32,8 +35,8 @@ public class TP1 {
         }
         
         // banyak koki
-        int V = in.nextInt();
-        arrKoki = new Koki[V+1];
+        V = in.nextInt();
+        arrKoki = new Koki[V+6];
         for (int i = 1; i <= V; i++) {
             String spesialisasi =  in.next();
             Koki newKoki = new Koki(spesialisasi, i);
@@ -48,7 +51,7 @@ public class TP1 {
         int Y = in.nextInt();
 
         // array pelanggan
-        arrPelanggan = new Pelanggan[P+1];
+        arrPelanggan = new Pelanggan[P+6];
         // jumlah pelanggan per hari
         int[] pelangganHariKe = new int[Y];
         // jumlah pelayanan per hari
@@ -126,7 +129,7 @@ public class TP1 {
                     satu = in.nextInt();
                     dua = in.nextInt();
                     tiga = in.nextInt();
-                    D(satu, dua, tiga);
+                    // D(satu, dua, tiga);
                 }
             }
         }
@@ -138,7 +141,7 @@ public class TP1 {
         Koki theKoki = arrKoki[1];
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
-        for (int i=2; i<=arrKoki.length-1; i++){
+        for (int i=2; i<=V; i++){
             if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
                 if (!theKoki.spesialisasi.equals(theMenu.tipe)){
                     theKoki = arrKoki[i];
@@ -181,7 +184,7 @@ public class TP1 {
         }
     }
     public static void C(int Q){
-        Arrays.sort(arrKoki, 1, arrKoki.length);
+        Arrays.sort(arrKoki, 1, V+1);
         for (int i=1; i<=Q; i++){
             out.print(arrKoki[i].id);
             if (i != Q){
@@ -303,11 +306,11 @@ class Koki implements Comparable<Koki> {
         } else {
             if (this.spesialisasi.equals(k.spesialisasi)){
                 return this.id > k.id ? 1 : -1;
-            } else if (this.spesialisasi.equals("Airfood")){
+            } else if (this.spesialisasi.equals("A")){
                 return 1;
-            } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Seafood")){
+            } else if (this.spesialisasi.equals("G") && k.spesialisasi.equals("S")){
                 return 1;
-            } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Airfood")){
+            } else if (this.spesialisasi.equals("G") && k.spesialisasi.equals("A")){
                 return -1;
             } else {
                 return -1;
