@@ -1,6 +1,10 @@
 import java.util.*;
+import java.io.*;
 
 public class TP1 {
+    private static InputReader in;
+    private static PrintWriter out;
+
     static Menu[] arrMenu;
     static Koki[] arrKoki;
     static Pelanggan[] arrPelanggan;
@@ -10,33 +14,36 @@ public class TP1 {
     static Queue<Integer> ruangLapar = new LinkedList<>();
 
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
+        InputStream inputStream = System.in;
+        in = new InputReader(inputStream);
+        OutputStream outputStream = System.out;
+        out = new PrintWriter(outputStream);
 
         // banyak menu
-        int M = input.nextInt();
+        int M = in.nextInt();
         arrMenu = new Menu[M+1];
         for (int i = 1; i <= M; i++) {
-            int harga = input.nextInt();
-            String tipe = input.next();
+            int harga = in.nextInt();
+            String tipe = in.next();
             Menu newMenu = new Menu(harga, tipe);
             arrMenu[i] = newMenu;
         }
         
         // banyak koki
-        int V = input.nextInt();
+        int V = in.nextInt();
         arrKoki = new Koki[V+1];
         for (int i = 1; i <= V; i++) {
-            String spesialisasi =  input.next();
+            String spesialisasi =  in.next();
             Koki newKoki = new Koki(spesialisasi, i);
             arrKoki[i] = newKoki;
         }
 
         // banyak pelanggan
-        int P = input.nextInt();
+        int P = in.nextInt();
         // banyak kursi
-        int N = input.nextInt();
+        int N = in.nextInt();
         // jumlah hari restoran beroperasi
-        int Y = input.nextInt();
+        int Y = in.nextInt();
 
         // array pelanggan
         arrPelanggan = new Pelanggan[P+1];
@@ -46,19 +53,19 @@ public class TP1 {
         int[] pelayananHariKe = new int[Y];
 
         for (int i = 0; i < Y; i++) {
-            pelangganHariKe[i] = input.nextInt();
+            pelangganHariKe[i] = in.nextInt();
             int ruangMakan = 0;
             for (int j=0; j<pelangganHariKe[i]; j++){
-                int I = input.nextInt();
-                char K = input.next().charAt(0);
-                int U = input.nextInt();
+                int I = in.nextInt();
+                char K = in.next().charAt(0);
+                int U = in.nextInt();
 
                 if (blackList.contains(I)){
-                    System.out.print(3);
+                    out.print(3);
                 } else {
                     Pelanggan newPelanggan;
                     if (K == '?'){
-                        int R = input.nextInt();
+                        int R = in.nextInt();
                         // advance scanning
                         int negatif = 0;
                         int positif = 0;
@@ -73,55 +80,55 @@ public class TP1 {
                     } 
 
                     if (K == '+'){
-                        System.out.print(0);
+                        out.print(0);
                     } else {
                         newPelanggan = new Pelanggan(I, K, U);
                         arrPelanggan[I] = newPelanggan;
     
                         if (ruangMakan < N){
                             sedangMakan.add(newPelanggan);
-                            System.out.print(1);
+                            out.print(1);
                             ruangMakan++;
                         } else {
                             ruangLapar.add(I);
-                            System.out.print(2);
+                            out.print(2);
                         }
                     }
                 }
                 if (j != pelangganHariKe[i]-1){
-                    System.out.print(" ");
+                    out.print(" ");
                 }
             }
-            System.out.println();
+            out.println();
 
-            pelayananHariKe[i] = input.nextInt();
+            pelayananHariKe[i] = in.nextInt();
             // fungsi pelayanan
             for (int j=0; j<pelayananHariKe[i]; j++){
                 int satu;
                 int dua;
                 int tiga;
-                char pelayanan = input.next().charAt(0);
+                char pelayanan = in.next().charAt(0);
                 if (pelayanan == 'P'){
-                    satu = input.nextInt();
-                    dua = input.nextInt();
+                    satu = in.nextInt();
+                    dua = in.nextInt();
                     P(satu, dua);
                 } else if (pelayanan == 'L'){
                     L();
                 } else if (pelayanan == 'B'){
-                    satu = input.nextInt();
+                    satu = in.nextInt();
                     B(satu);
                 } else if (pelayanan == 'C'){
-                    satu = input.nextInt();
+                    satu = in.nextInt();
                     C(satu);
                 } else if (pelayanan == 'D'){
-                    satu = input.nextInt();
-                    dua = input.nextInt();
-                    tiga = input.nextInt();
+                    satu = in.nextInt();
+                    dua = in.nextInt();
+                    tiga = in.nextInt();
                 }
             }
         }
 
-        input.close();
+        out.close();
     }
 
     public static void P(int idPelanggan, int indexMakanan){
@@ -146,22 +153,22 @@ public class TP1 {
 
         Pesanan newPesanan = new Pesanan(theMenu, theKoki, thePelanggan);
         pesanan.add(newPesanan);
-        System.out.println(theKoki.id);
+        out.println(theKoki.id);
     }
     public static void L(){
         for (Pesanan p: pesanan){
             p.koki.jumlahMelayani++;
-            System.out.println(p.pelanggan.I);
+            out.println(p.pelanggan.I);
             pesanan.poll();
         }
     }
     public static void B(int idPelanggan){
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         if (thePelanggan.U < thePelanggan.tagihan){
-            System.out.println(0);
+            out.println(0);
             blackList.add(thePelanggan.I);
         } else {
-            System.out.println(1);
+            out.println(1);
             thePelanggan.U -= thePelanggan.tagihan;
         }
         sedangMakan.remove(thePelanggan);
@@ -173,14 +180,49 @@ public class TP1 {
     public static void C(int Q){
         Arrays.sort(arrKoki, 1, arrKoki.length);
         for (int i=1; i<=Q; i++){
-            System.out.print(arrKoki[i].id);
+            out.print(arrKoki[i].id);
             if (i != Q){
-                System.out.print(" ");
+                out.print(" ");
             }
         }
     }
     public static void D(int A, int G, int S){
-        
+
+    }
+
+
+    // taken from https://codeforces.com/submissions/Petr
+    // together with PrintWriter, these input-output (IO) is much faster than the
+    // usual Scanner(System.in) and System.out
+    // please use these classes to avoid your fast algorithm gets Time Limit
+    // Exceeded caused by slow input-output (IO)
+    static class InputReader {
+        public BufferedReader reader;
+        public StringTokenizer tokenizer;
+
+        public InputReader(InputStream stream) {
+            reader = new BufferedReader(new InputStreamReader(stream), 32768);
+            tokenizer = null;
+        }
+
+        public String next() {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                try {
+                    tokenizer = new StringTokenizer(reader.readLine());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return tokenizer.nextToken();
+        }
+
+        public int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        public char nextChar() {
+            return next().equals("R") ? 'R' : 'B';
+        }
     }
 }
 
