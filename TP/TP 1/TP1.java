@@ -47,6 +47,7 @@ public class TP1 {
 
         for (int i = 0; i < Y; i++) {
             pelangganHariKe[i] = input.nextInt();
+            int ruangMakan = 0;
             for (int j=0; j<pelangganHariKe[i]; j++){
                 int I = input.nextInt();
                 char K = input.next().charAt(0);
@@ -77,16 +78,19 @@ public class TP1 {
                         newPelanggan = new Pelanggan(I, K, U);
                         arrPelanggan[I] = newPelanggan;
     
-                        if (j <= N){
+                        if (ruangMakan < N){
                             sedangMakan.add(newPelanggan);
                             System.out.print(1);
+                            ruangMakan++;
                         } else {
                             ruangLapar.add(I);
                             System.out.print(2);
                         }
                     }
                 }
-                System.out.print(" ");
+                if (j != pelangganHariKe[i]-1){
+                    System.out.print(" ");
+                }
             }
             System.out.println();
 
@@ -162,17 +166,22 @@ public class TP1 {
         }
         sedangMakan.remove(thePelanggan);
         if (ruangLapar.size() != 0){
-            int idNewPelanggan = ruangLapar.remove();
+            int idNewPelanggan = ruangLapar.poll();
             sedangMakan.add(arrPelanggan[idNewPelanggan]);
         }
     }
     public static void C(int Q){
         Arrays.sort(arrKoki, 1, arrKoki.length);
         for (int i=1; i<=Q; i++){
-            System.out.print(arrKoki[i].id + " ");
+            System.out.print(arrKoki[i].id);
+            if (i != Q){
+                System.out.print(" ");
+            }
         }
     }
-    public static void D(int A, int G, int S){}
+    public static void D(int A, int G, int S){
+        
+    }
 }
 
 class Menu {
@@ -239,11 +248,7 @@ class Koki implements Comparable<Koki> {
                 return 1;
             } else if (this.spesialisasi.equals("Groundfood") && k.spesialisasi.equals("Airfood")){
                 return -1;
-            } 
-            // else if (this.spesialisasi.equals("Seafood")){
-            //     return -1;
-            // } 
-            else {
+            } else {
                 return -1;
             }
         }
