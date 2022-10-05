@@ -1,118 +1,136 @@
 import java.util.*;
 import java.io.*;
 
+// MEMO DAN TREESET
 public class TP1 {
-    private static InputReader in;
+    private static Reader in;
     private static PrintWriter out;
 
     static int M;
     static int V;
 
     static Menu[] arrMenu;
-    static Koki[] arrKoki;
+    static TreeSet<Koki> allKoki = new TreeSet<>();
+    static TreeSet<Koki> kokiA = new TreeSet<>();
+    static TreeSet<Koki> kokiG = new TreeSet<>();
+    static TreeSet<Koki> kokiS = new TreeSet<>();
     static Pelanggan[] arrPelanggan;
-    static LinkedList<Pelanggan> sedangMakan = new LinkedList<>();
-    static LinkedList<Integer> blackList = new LinkedList<>();
     static Queue<Pesanan> pesanan = new LinkedList<>();
-    static Queue<Integer> ruangLapar = new LinkedList<>();
-    // static Map<Integer[], Integer> map = new HashMap<>();
-    static Set<Integer[]> dp = new TreeSet<>();
 
-    public static void main(String[] args) {
-        InputStream inputStream = System.in;
-        in = new InputReader(inputStream);
+    public static void main(String[] args) throws IOException {
+        in = new Reader();
         OutputStream outputStream = System.out;
         out = new PrintWriter(outputStream);
 
         // banyak menu
         M = in.nextInt();
-        arrMenu = new Menu[M+6];
+        // array of menu
+        arrMenu = new Menu[M+1];
         for (int i = 1; i <= M; i++) {
             int harga = in.nextInt();
-            String tipe = in.next();
+            char tipe = in.nextChar();
             Menu newMenu = new Menu(harga, tipe);
             arrMenu[i] = newMenu;
         }
         
         // banyak koki
         V = in.nextInt();
-        arrKoki = new Koki[V+6];
         for (int i = 1; i <= V; i++) {
-            String spesialisasi =  in.next();
+            char spesialisasi =  in.nextChar();
             Koki newKoki = new Koki(spesialisasi, i);
-            arrKoki[i] = newKoki;
+            allKoki.add(newKoki);
+            if (spesialisasi == 'A'){
+                kokiA.add(newKoki);
+            } else if (spesialisasi == 'G'){
+                kokiG.add(newKoki);
+            } else {
+                kokiS.add(newKoki);
+            }
         }
 
         // banyak pelanggan
         int P = in.nextInt();
+        // array pelanggan
+        arrPelanggan = new Pelanggan[P+1];
+        for (int i=1; i<=P; i++){
+            arrPelanggan[i] = new Pelanggan(i);
+        }
         // banyak kursi
         int N = in.nextInt();
         // jumlah hari restoran beroperasi
         int Y = in.nextInt();
 
-        // array pelanggan
-        arrPelanggan = new Pelanggan[P+6];
-        // jumlah pelanggan per hari
-        int[] pelangganHariKe = new int[Y];
-        // jumlah pelayanan per hari
-        int[] pelayananHariKe = new int[Y];
-
+        // pelayanan dari hari pertama sampai hari ke-Y
         for (int i = 0; i < Y; i++) {
-            pelangganHariKe[i] = in.nextInt();
-            int ruangMakan = 0;
-            for (int j=0; j<pelangganHariKe[i]; j++){
-                int I = in.nextInt();
-                char K = in.next().charAt(0);
-                int U = in.nextInt();
+            // banyak pelanggan pada hari ke-i
+            int jmlPelanggan = in.nextInt();
+            // array pelanggan perhari
+            Pelanggan[] arrPelangganPerHari = new Pelanggan[jmlPelanggan];
+            Integer[] positifMemo = new Integer[jmlPelanggan];
 
-                if (blackList.contains(I)){
-                    out.print(3);
-                } else {
-                    Pelanggan newPelanggan;
-                    if (K == '?'){
-                        int R = in.nextInt();
-                        // advance scanning
-                        int negatif = 0;
-                        int positif = 0;
-                        for (int k=I-R; k>=I-1; k--){
-                            if (arrPelanggan[k].K == '-'){
+            // jumlah yang sedang makan di kursi restoran
+            int sedangMakan = 0;
+            // pelanggan pada hari ke-i
+            for (int j=0; j<jmlPelanggan; j++){
+                int I = in.nextInt();   
+                char K = in.nextChar();          
+                int U = in.nextInt(); 
+
+                arrPelanggan[I].uang = U;
+                arrPelangganPerHari[j] = arrPelanggan[I];
+
+                if (K == '?'){
+                    int R = in.nextInt();
+                    int positif = 0;
+                    int negatif = 0;
+                    int awal = j-R-1;
+                    int akhir = j-1;
+                    if (positifMemo[akhir] != null){
+                        if (awal < 0){
+                            positif = positifMemo[akhir];
+                        } else {
+                            positif = positifMemo[akhir] - positifMemo[awal];
+                        }
+                        negatif = R - positif;
+                    } else {
+                        for (int k=j-R; k<=j-1; k++){
+                            if (k < 0 || arrPelangganPerHari[k] == null){
+                                continue;
+                            } else if (arrPelangganPerHari[k].status == '-'){
                                 negatif++;
                             } else {
                                 positif++;
                             }
                         }
-                        K = negatif < positif ? '+' : '-';
-                    } 
-
-                    if (K == '+'){
-                        out.print(0);
-                    } else {
-                        newPelanggan = new Pelanggan(I, K, U);
-                        arrPelanggan[I] = newPelanggan;
-    
-                        if (ruangMakan < N){
-                            sedangMakan.add(newPelanggan);
-                            out.print(1);
-                            ruangMakan++;
-                        } else {
-                            ruangLapar.add(I);
-                            out.print(2);
-                        }
+                        positifMemo[akhir] = positif;
                     }
+                    K = (negatif < positif) ? '+' : '-';
                 }
-                if (j != pelangganHariKe[i]-1){
-                    out.print(" ");
+                arrPelanggan[I].status = K;
+
+                if (arrPelanggan[I].isBlacklist){
+                    out.print(3 + " ");
+                } else if (K == '+'){
+                    out.print(0 + " ");
+                } else {
+                    if (sedangMakan < N){
+                        out.print(1 + " ");
+                        sedangMakan++;
+                    } else {
+                        out.print(2 + " ");
+                    }
                 }
             }
             out.println();
 
-            pelayananHariKe[i] = in.nextInt();
+            // jumlah pelayanan pada hari ke-i
+            int jmlPelayanan = in.nextInt();
             // fungsi pelayanan
-            for (int j=0; j<pelayananHariKe[i]; j++){
+            for (int j=0; j<jmlPelayanan; j++){
                 int satu;
                 int dua;
                 int tiga;
-                char pelayanan = in.next().charAt(0);
+                char pelayanan = in.nextChar();
                 if (pelayanan == 'P'){
                     satu = in.nextInt();
                     dua = in.nextInt();
@@ -133,84 +151,69 @@ public class TP1 {
                 }
             }
         }
-
         out.close();
     }
 
     public static void P(int idPelanggan, int indexMakanan){
-        Koki theKoki = arrKoki[1];
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
-        for (int i=2; i<=V; i++){
-            if (arrKoki[i].spesialisasi.equals(theMenu.tipe)){
-                if (!theKoki.spesialisasi.equals(theMenu.tipe)){
-                    theKoki = arrKoki[i];
-                } else {
-                    if (theKoki.jumlahMelayani > arrKoki[i].jumlahMelayani){
-                        theKoki = arrKoki[i];
-                    } 
-                    else if (theKoki.jumlahMelayani == arrKoki[i].jumlahMelayani && i > theKoki.id) {
-                        theKoki = arrKoki[theKoki.id];
-                    }
-                }
-            }
+        Koki theKoki;
+        if (theMenu.tipe == 'A'){
+            theKoki = kokiA.first();
+        } else if (theMenu.tipe == 'G'){
+            theKoki = kokiG.first();
+        } else {
+            theKoki = kokiS.first();
         }
-        thePelanggan.tagihan += theMenu.harga;
 
+        // tagihan pelanggan bertambah
+        thePelanggan.tagihan += theMenu.harga;
+        // bikin objek pesanan baru
         Pesanan newPesanan = new Pesanan(theMenu, theKoki, thePelanggan);
+        // add newpesanan ke queue of pesanan
         pesanan.add(newPesanan);
         out.println(theKoki.id);
     }
     public static void L(){
-        for (Pesanan p: pesanan){
-            p.koki.jumlahMelayani++;
-            out.println(p.pelanggan.I);
-            pesanan.poll();
+        Pesanan thePesanan = pesanan.poll();
+        Koki theKoki = thePesanan.koki;
+        allKoki.remove(theKoki);
+        if (theKoki.spesialisasi == 'A'){
+            kokiA.remove(theKoki);
+            theKoki.jumlahMelayani++;
+            kokiA.add(theKoki);
+        } else if (theKoki.spesialisasi == 'G'){
+            kokiG.remove(theKoki);
+            theKoki.jumlahMelayani++;
+            kokiG.add(theKoki);
+        } else {
+            kokiS.remove(theKoki);
+            theKoki.jumlahMelayani++;   
+            kokiS.add(theKoki);
         }
+        allKoki.add(theKoki);
+        out.println(thePesanan.pelanggan.id); 
     }
     public static void B(int idPelanggan){
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
-        if (thePelanggan.U < thePelanggan.tagihan){
+        if (thePelanggan.uang < thePelanggan.tagihan){
             out.println(0);
-            blackList.add(thePelanggan.I);
+            thePelanggan.isBlacklist = true;
         } else {
             out.println(1);
-            thePelanggan.U -= thePelanggan.tagihan;
-        }
-        sedangMakan.remove(thePelanggan);
-        if (ruangLapar.size() != 0){
-            int idNewPelanggan = ruangLapar.poll();
-            sedangMakan.add(arrPelanggan[idNewPelanggan]);
+            // thePelanggan.uang -= thePelanggan.tagihan;
+            thePelanggan.tagihan = 0;
         }
     }
     public static void C(int Q){
-        Arrays.sort(arrKoki, 1, V+1);
-        for (int i=1; i<=Q; i++){
-            out.print(arrKoki[i].id);
-            if (i != Q){
-                out.print(" ");
-            }
+        Iterator<Koki> it = allKoki.iterator();
+        while (it.hasNext() && Q > 0){
+            out.print(it.next().id + " ");
+            Q--;
         }
+        out.println();
     }
-    public static void D(int A, int G, int S){
-
-    }
-    public static void helperD(int start){
-        Integer[] index = new Integer[2];
-        index[0] = start;
-        Menu awal = arrMenu[start];
-        for (int i=start+1; i<=arrMenu.length-1; i++){
-            index[1] = i;
-            if (arrMenu[i].tipe.equals(awal.tipe)){
-                if (dp.contains(index)){
-                    continue;
-                } else {
-                    dp.add(index);
-                }
-            }
-        }
-        helperD(start+1);
-    }
+    public static void D(int A, int G, int S){}
 
 
     // taken from https://codeforces.com/submissions/Petr
@@ -218,41 +221,121 @@ public class TP1 {
     // usual Scanner(System.in) and System.out
     // please use these classes to avoid your fast algorithm gets Time Limit
     // Exceeded caused by slow input-output (IO)
-    static class InputReader {
-        public BufferedReader reader;
-        public StringTokenizer tokenizer;
+    static class Reader {
+        final private int BUFFER_SIZE = 1 << 16;
+        private DataInputStream din;
+        private byte[] buffer;
+        private int bufferPointer, bytesRead;
 
-        public InputReader(InputStream stream) {
-            reader = new BufferedReader(new InputStreamReader(stream), 32768);
-            tokenizer = null;
+        public Reader() {
+            din = new DataInputStream(System.in);
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
         }
+        public Reader(String file_name) throws IOException {
+            din = new DataInputStream(
+                    new FileInputStream(file_name));
+            buffer = new byte[BUFFER_SIZE];
+            bufferPointer = bytesRead = 0;
+        }
+        public String readWord() throws IOException {
+            byte[] buf = new byte[1005]; // line length
+            int cnt = 0, c;
+            while ((c = read()) != -1) {
+                if (c == '\n' || c == ' ') {
+                    if (cnt != 0) {
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+                buf[cnt++] = (byte) c;
+            }
+            return new String(buf, 0, cnt);
+        }
+        public char nextChar() throws IOException {
+            byte c = read();
+            while (c <= ' ') {
+                c = read();
+            }
 
-        public String next() {
-            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
-                try {
-                    tokenizer = new StringTokenizer(reader.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+            return (char) c;
+        }
+        public int nextInt() throws IOException {
+            int ret = 0;
+            byte c = read();
+            while (c <= ' ') {
+                c = read();
+            }
+            boolean neg = (c == '-');
+            if (neg)
+                c = read();
+            do {
+                ret = ret * 10 + c - '0';
+            } while ((c = read()) >= '0' && c <= '9');
+
+            if (neg)
+                return -ret;
+            return ret;
+        }
+        public long nextLong() throws IOException {
+            long ret = 0;
+            byte c = read();
+            while (c <= ' ')
+                c = read();
+            boolean neg = (c == '-');
+            if (neg)
+                c = read();
+            do {
+                ret = ret * 10 + c - '0';
+            } while ((c = read()) >= '0' && c <= '9');
+            if (neg)
+                return -ret;
+            return ret;
+        }
+        public double nextDouble() throws IOException {
+            double ret = 0, div = 1;
+            byte c = read();
+            while (c <= ' ')
+                c = read();
+            boolean neg = (c == '-');
+            if (neg)
+                c = read();
+            do {
+                ret = ret * 10 + c - '0';
+            } while ((c = read()) >= '0' && c <= '9');
+            if (c == '.') {
+                while ((c = read()) >= '0' && c <= '9') {
+                    ret += (c - '0') / (div *= 10);
                 }
             }
-            return tokenizer.nextToken();
+            if (neg)
+                return -ret;
+            return ret;
         }
-
-        public int nextInt() {
-            return Integer.parseInt(next());
+        private void fillBuffer() throws IOException {
+            bytesRead = din.read(buffer, bufferPointer = 0,
+                    BUFFER_SIZE);
+            if (bytesRead == -1)
+                buffer[0] = -1;
         }
-
-        public char nextChar() {
-            return next().equals("R") ? 'R' : 'B';
+        private byte read() throws IOException {
+            if (bufferPointer == bytesRead)
+                fillBuffer();
+            return buffer[bufferPointer++];
+        }
+        public void close() throws IOException {
+            if (din == null)
+                return;
+            din.close();
         }
     }
 }
 
 class Menu {
     int harga;
-    String tipe;
-
-    public Menu(int harga, String tipe) {
+    char tipe;
+    public Menu(int harga, char tipe) {
         this.harga = harga;
         this.tipe = tipe;
     }
@@ -262,7 +345,6 @@ class Pesanan {
     Menu menu;
     Koki koki;
     Pelanggan pelanggan;
-
     public Pesanan(Menu menu, Koki koki, Pelanggan pelanggan){
         this.menu = menu;
         this.koki = koki;
@@ -271,49 +353,40 @@ class Pesanan {
 }
 
 class Pelanggan {
-    int I; // id pelanggan
-    char K; // status kesehatan
-    int U; // jumlah uang
-    int tagihan;
-  
-    public Pelanggan(int I, char K, int U) {
-        this.I = I;
-        this.K = K;
-        this.U = U;
+    int id; // id pelanggan
+    char status; // status kesehatan
+    int uang; // jumlah uang
+    long tagihan;
+    boolean isBlacklist;
+    public Pelanggan(int id) {
+        this.id = id;
+        this.isBlacklist = false;
         this.tagihan = 0;
     }
 }
 
 class Koki implements Comparable<Koki> {
-    String spesialisasi;
-    int jumlahPelayanan;
+    char spesialisasi;
     int jumlahMelayani;
     int id;
-
-    public Koki(String spesialisasi, int id){
+    public Koki(char spesialisasi, int id){
         this.spesialisasi = spesialisasi;
-        this.jumlahPelayanan = 0;
         this.jumlahMelayani = 0;
         this.id = id;
     }
-
-    // hasnt done yet
+    @Override
     public int compareTo(Koki k){
         if (this.jumlahMelayani > k.jumlahMelayani){
             return 1;
         } else if (this.jumlahMelayani < k.jumlahMelayani){
             return -1;
         } else {
-            if (this.spesialisasi.equals(k.spesialisasi)){
-                return this.id > k.id ? 1 : -1;
-            } else if (this.spesialisasi.equals("A")){
-                return 1;
-            } else if (this.spesialisasi.equals("G") && k.spesialisasi.equals("S")){
-                return 1;
-            } else if (this.spesialisasi.equals("G") && k.spesialisasi.equals("A")){
+            if (this.spesialisasi > k.spesialisasi){
                 return -1;
+            } else if (this.spesialisasi < k.spesialisasi){
+                return 1;
             } else {
-                return -1;
+                return this.id - k.id;
             }
         }
     }
