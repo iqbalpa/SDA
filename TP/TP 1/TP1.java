@@ -1,7 +1,13 @@
 import java.util.*;
 import java.io.*;
 
-// MEMO DAN TREESET
+// Ideas by 
+// 1. Aushaaf Fadhilah A
+// 2. M ferry Husnil A
+// Collaborators with
+// 1. Laela Putri Salsa B
+// 2. M Vicky Maulana
+
 public class TP1 {
     private static Reader in;
     private static PrintWriter out;
@@ -10,11 +16,11 @@ public class TP1 {
     static int V;
 
     static Menu[] arrMenu;
+    static Pelanggan[] arrPelanggan;
     static TreeSet<Koki> allKoki = new TreeSet<>();
     static TreeSet<Koki> kokiA = new TreeSet<>();
     static TreeSet<Koki> kokiG = new TreeSet<>();
     static TreeSet<Koki> kokiS = new TreeSet<>();
-    static Pelanggan[] arrPelanggan;
     static Queue<Pesanan> pesanan = new LinkedList<>();
 
     public static void main(String[] args) throws IOException {
@@ -39,6 +45,7 @@ public class TP1 {
             char spesialisasi =  in.nextChar();
             Koki newKoki = new Koki(spesialisasi, i);
             allKoki.add(newKoki);
+            // menambahkan koki ke treeset yg sesuai
             if (spesialisasi == 'A'){
                 kokiA.add(newKoki);
             } else if (spesialisasi == 'G'){
@@ -66,60 +73,68 @@ public class TP1 {
             int jmlPelanggan = in.nextInt();
             // array pelanggan perhari
             Pelanggan[] arrPelangganPerHari = new Pelanggan[jmlPelanggan];
-            Integer[] positifMemo = new Integer[jmlPelanggan];
 
             // jumlah yang sedang makan di kursi restoran
             int sedangMakan = 0;
+            
+            // memoisasi untuk menyimpan jumlah positif
+            Integer[] positifMemo = new Integer[jmlPelanggan];
+            int positif = 0;
+
             // pelanggan pada hari ke-i
             for (int j=0; j<jmlPelanggan; j++){
                 int I = in.nextInt();   
                 char K = in.nextChar();          
                 int U = in.nextInt(); 
 
+                // set uang pelanggan
                 arrPelanggan[I].uang = U;
                 arrPelangganPerHari[j] = arrPelanggan[I];
 
+                // jika status ? maka dilakukan advance scanning
                 if (K == '?'){
                     int R = in.nextInt();
-                    int positif = 0;
-                    int negatif = 0;
                     int awal = j-R-1;
                     int akhir = j-1;
-                    if (positifMemo[akhir] != null){
-                        if (awal < 0){
-                            positif = positifMemo[akhir];
-                        } else {
-                            positif = positifMemo[akhir] - positifMemo[awal];
-                        }
-                        negatif = R - positif;
+                    int pos = 0;
+                    if (awal < 0){
+                        pos = positifMemo[akhir];
                     } else {
-                        for (int k=j-R; k<=j-1; k++){
-                            if (k < 0 || arrPelangganPerHari[k] == null){
-                                continue;
-                            } else if (arrPelangganPerHari[k].status == '-'){
-                                negatif++;
-                            } else {
-                                positif++;
-                            }
-                        }
-                        positifMemo[akhir] = positif;
+                        pos = positifMemo[akhir] - positifMemo[awal];
                     }
-                    K = (negatif < positif) ? '+' : '-';
+                    int neg = R - pos;
+                    K = (neg < pos) ? '+' : '-';
                 }
+                // status ? diubah sesuai hasil advance scanning
                 arrPelanggan[I].status = K;
 
+                // jika status +
+                if (K == '+'){
+                    positif++;
+                }
+
+                // jika pelanggan di blacklist
                 if (arrPelanggan[I].isBlacklist){
                     out.print(3 + " ");
-                } else if (K == '+'){
+                }
+                // jika pelanggan positif 
+                else if (K == '+'){
                     out.print(0 + " ");
-                } else {
+                } 
+                // jika pelanggan negatif
+                else {
+                    // jika masih ada kursi kosong
                     if (sedangMakan < N){
                         out.print(1 + " ");
                         sedangMakan++;
-                    } else {
+                    } 
+                    // pelanggan masuk ruang lapar
+                    else {
                         out.print(2 + " ");
                     }
                 }
+                // simpan jml positif ke memo
+                positifMemo[j] = positif;
             }
             out.println();
 
@@ -147,17 +162,18 @@ public class TP1 {
                     satu = in.nextInt();
                     dua = in.nextInt();
                     tiga = in.nextInt();
-                    // D(satu, dua, tiga);
                 }
             }
         }
         out.close();
     }
 
+    // function untuk query P
     public static void P(int idPelanggan, int indexMakanan){
         Menu theMenu = arrMenu[indexMakanan];
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         Koki theKoki;
+        // cek menu untuk mendapatkan koki dengan spesialisasi yang sesuai
         if (theMenu.tipe == 'A'){
             theKoki = kokiA.first();
         } else if (theMenu.tipe == 'G'){
@@ -174,10 +190,13 @@ public class TP1 {
         pesanan.add(newPesanan);
         out.println(theKoki.id);
     }
+
+    // function untuk query L
     public static void L(){
         Pesanan thePesanan = pesanan.poll();
         Koki theKoki = thePesanan.koki;
         allKoki.remove(theKoki);
+        // cek spesialisasi koki dan update jml melayaninya
         if (theKoki.spesialisasi == 'A'){
             kokiA.remove(theKoki);
             theKoki.jumlahMelayani++;
@@ -194,6 +213,7 @@ public class TP1 {
         allKoki.add(theKoki);
         out.println(thePesanan.pelanggan.id); 
     }
+    // function untuk query B
     public static void B(int idPelanggan){
         Pelanggan thePelanggan = arrPelanggan[idPelanggan];
         if (thePelanggan.uang < thePelanggan.tagihan){
@@ -201,10 +221,10 @@ public class TP1 {
             thePelanggan.isBlacklist = true;
         } else {
             out.println(1);
-            // thePelanggan.uang -= thePelanggan.tagihan;
             thePelanggan.tagihan = 0;
         }
     }
+    // function untuk query C
     public static void C(int Q){
         Iterator<Koki> it = allKoki.iterator();
         while (it.hasNext() && Q > 0){
@@ -213,7 +233,13 @@ public class TP1 {
         }
         out.println();
     }
-    public static void D(int A, int G, int S){}
+    public static void D(int A, int G, int S){
+        int total = 0;
+        for (int i=1; i<=M; i++){
+            total += arrMenu[i].harga;
+        }
+        out.println(total);
+    }
 
 
     // taken from https://codeforces.com/submissions/Petr
@@ -232,12 +258,14 @@ public class TP1 {
             buffer = new byte[BUFFER_SIZE];
             bufferPointer = bytesRead = 0;
         }
+
         public Reader(String file_name) throws IOException {
             din = new DataInputStream(
                     new FileInputStream(file_name));
             buffer = new byte[BUFFER_SIZE];
             bufferPointer = bytesRead = 0;
         }
+
         public String readWord() throws IOException {
             byte[] buf = new byte[1005]; // line length
             int cnt = 0, c;
@@ -253,6 +281,7 @@ public class TP1 {
             }
             return new String(buf, 0, cnt);
         }
+
         public char nextChar() throws IOException {
             byte c = read();
             while (c <= ' ') {
@@ -261,6 +290,7 @@ public class TP1 {
 
             return (char) c;
         }
+
         public int nextInt() throws IOException {
             int ret = 0;
             byte c = read();
@@ -278,6 +308,7 @@ public class TP1 {
                 return -ret;
             return ret;
         }
+
         public long nextLong() throws IOException {
             long ret = 0;
             byte c = read();
@@ -293,6 +324,7 @@ public class TP1 {
                 return -ret;
             return ret;
         }
+
         public double nextDouble() throws IOException {
             double ret = 0, div = 1;
             byte c = read();
@@ -301,29 +333,35 @@ public class TP1 {
             boolean neg = (c == '-');
             if (neg)
                 c = read();
+
             do {
                 ret = ret * 10 + c - '0';
             } while ((c = read()) >= '0' && c <= '9');
+
             if (c == '.') {
                 while ((c = read()) >= '0' && c <= '9') {
                     ret += (c - '0') / (div *= 10);
                 }
             }
+
             if (neg)
                 return -ret;
             return ret;
         }
+
         private void fillBuffer() throws IOException {
             bytesRead = din.read(buffer, bufferPointer = 0,
                     BUFFER_SIZE);
             if (bytesRead == -1)
                 buffer[0] = -1;
         }
+
         private byte read() throws IOException {
             if (bufferPointer == bytesRead)
                 fillBuffer();
             return buffer[bufferPointer++];
         }
+
         public void close() throws IOException {
             if (din == null)
                 return;
