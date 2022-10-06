@@ -105,38 +105,6 @@ public class Lab4 {
         // gerak iblis
         gerakIblis();
         gerakIblis();
-        // if (iblis.isTurun) {
-        //     if (iblis.diLantai == 2) {
-        //         iblis.diGedung = iblis.diGedung.next;
-        //         iblis.diLantai = 1;
-        //         iblis.isTurun = false;
-        //     } else if (iblis.diLantai == 1){
-        //         iblis.diGedung = iblis.diGedung.next;
-        //         if (iblis.diGedung.jumlahLantai == 1){
-        //             iblis.diLantai = 1;
-        //             iblis.isTurun = false;
-        //         } else {
-        //             iblis.diLantai = 2;
-        //             iblis.isTurun = true;
-        //         }
-        //         iblis.isTurun = false;
-        //     } else {
-        //         iblis.diLantai -= 2;
-        //     }
-        // } else {
-        //     if (iblis.diLantai == iblis.diGedung.jumlahLantai) {
-        //         iblis.diGedung = iblis.diGedung.next;
-        //         iblis.diLantai = iblis.diGedung.jumlahLantai-1;
-        //         iblis.isTurun = true;
-        //     } else if (iblis.diLantai == iblis.diGedung.jumlahLantai - 1){
-        //         iblis.diGedung = iblis.diGedung.next;
-        //         iblis.diLantai = iblis.diGedung.jumlahLantai;
-        //         iblis.isTurun = true;
-
-        //     } else {
-        //         iblis.diLantai += 2;
-        //     }
-        // }
 
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
             jumlahBertemu++;
@@ -147,11 +115,6 @@ public class Lab4 {
         out.print(iblis.diGedung.nama + " ");
         out.print(iblis.diLantai + " ");
         out.println(jumlahBertemu);
-
-        out.println("=== arah iblis " + iblis.isTurun);
-        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
-        out.println("=== arah denji " + denji.isTurun);
-        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
     }
 
     // TODO: Implemen perintah HANCUR
@@ -173,11 +136,6 @@ public class Lab4 {
         } else {
             out.println(denji.diGedung.nama + " " + (-1));
         }
-
-        out.println("=== arah iblis " + iblis.isTurun);
-        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
-        out.println("=== arah denji " + denji.isTurun);
-        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
     }
 
     // TODO: Implemen perintah TAMBAH
@@ -190,11 +148,6 @@ public class Lab4 {
         }
         iblis.diGedung.jumlahLantai++;
         iblis.diLantai++;
-
-        out.println("=== arah iblis " + iblis.isTurun);
-        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
-        out.println("=== arah denji " + denji.isTurun);
-        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
         out.println(iblis.diGedung.nama + " " + (iblis.diLantai-1));
     }
 
@@ -210,11 +163,6 @@ public class Lab4 {
             jumlahBertemu++;
         }
         out.println(denji.diGedung.nama + " " + denji.diLantai);
-        
-        out.println("=== arah iblis " + iblis.isTurun);
-        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
-        out.println("=== arah denji " + denji.isTurun);
-        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
     }
 
     static void gerakIblis(){
