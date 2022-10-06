@@ -1,13 +1,18 @@
-import java.io.*;
-import java.util.StringTokenizer;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.*;
 
 public class Lab4 {
     private static InputReader in;
     private static PrintWriter out;
-
-    static Lab4Character denji = new Lab4Character();
-    static Lab4Character iblis = new Lab4Character();
-    static LinkedList<Gedung> listGedung = new LinkedList<>();
+    static ListGedung listGedung = new ListGedung();
+    static Karakter denji = new Karakter();
+    static Karakter iblis = new Karakter();
+    static int jumlahBertemu = 0;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -15,63 +20,233 @@ public class Lab4 {
         OutputStream outputStream = System.out;
         out = new PrintWriter(outputStream);
 
-        int B = in.nextInt();
-        for (int i=0; i<B; i++){
-            String Ai = in.next();      // nama gedung
-            int Fi = in.nextInt();      // jumlah lantai gedung
-            Gedung newGedung = new Gedung(Ai, Fi);
-            listGedung.add(newGedung);
+        int jumlahGedung = in.nextInt();
+        for (int i = 0; i < jumlahGedung; i++) {
+            String namaGedung = in.next();
+            int jumlahLantai = in.nextInt();
+
+            // TODO: Inisiasi gedung pada kondisi awal
+            Gedung newGedung = new Gedung(namaGedung, jumlahLantai);
+            listGedung.addGedung(newGedung);
         }
 
-        String AD = in.next();          // nama gedung yang tempat pertama denji
-        int FD = in.nextInt();          // lantai tempat pertama denji
-        denji.diGedung = AD;
-        denji.diLantai = FD;
+
+        // DENJI
+        String gedungDenji = in.next();
+        int lantaiDenji = in.nextInt();
+        // TODO: Tetapkan kondisi awal Denji
+        Gedung temp = listGedung.first;
+        while (temp.next != null){
+            if (temp.nama.equals(gedungDenji)){
+                denji.diGedung = temp;
+                break;
+            }
+            temp = temp.next;
+        }
+        denji.diLantai = lantaiDenji;
         denji.isTurun = false;
 
-        String AS = in.next();          // nama gedung yang tempat pertama iblis
-        int FS = in.nextInt();          // lantai tempat pertama iblis
-        iblis.diGedung = AS;
-        iblis.diLantai = FS;
+
+        // IBLIS
+        String gedungIblis = in.next();
+        int lantaiIblis = in.nextInt();
+        // TODO: Tetapkan kondisi awal Iblis
+        temp = listGedung.first;
+        while(temp.next != null){
+            if(temp.nama.equals(gedungIblis)){
+                iblis.diGedung = temp;
+                break;
+            }
+            temp = temp.next;
+        }
+        iblis.diLantai = lantaiIblis;
         iblis.isTurun = true;
 
-        int Q = in.nextInt();           // banyak query
-        for (int i=0; i<Q; i++){
-            String query = in.next();
-            if (query.equals("GERAK")){
+
+        int Q = in.nextInt();
+        for (int i = 0; i < Q; i++) {
+            String command = in.next();
+            if (command.equals("GERAK")) {
                 gerak();
-            } else if (query.equals("HANCUR")){
+            } else if (command.equals("HANCUR")) {
                 hancur();
-            } else if (query.equals("TAMBAH")){
+            } else if (command.equals("TAMBAH")) {
                 tambah();
-            } else if (query.equals("PINDAH")){
+            } else if (command.equals("PINDAH")) {
                 pindah();
             }
-        }   
-
-        // Tutup OutputStream
+        }
         out.close();
     }
 
-    public static void gerak(){}
-    public static void hancur(){}
-    public static void tambah(){}
-    public static void pindah(){}
+    // TODO: Implemen perintah GERAK
+    static void gerak() {
+        // gerak denji
+        if (denji.isTurun) {
+            if (denji.diLantai == 1) {
+                denji.diGedung = denji.diGedung.next;
+                denji.diLantai = 1;
+                denji.isTurun = false;
+            } else {
+                denji.diLantai--;
+            }
+        } else {
+            if (denji.diLantai == denji.diGedung.jumlahLantai) {
+                denji.diGedung = denji.diGedung.next;
+                denji.diLantai = denji.diGedung.jumlahLantai;
+                denji.isTurun = true;
+            } else {
+                denji.diLantai++;
+            }
+        }
+        if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
+            jumlahBertemu++;
+        }
+        // gerak iblis
+        gerakIblis();
+        gerakIblis();
+        // if (iblis.isTurun) {
+        //     if (iblis.diLantai == 2) {
+        //         iblis.diGedung = iblis.diGedung.next;
+        //         iblis.diLantai = 1;
+        //         iblis.isTurun = false;
+        //     } else if (iblis.diLantai == 1){
+        //         iblis.diGedung = iblis.diGedung.next;
+        //         if (iblis.diGedung.jumlahLantai == 1){
+        //             iblis.diLantai = 1;
+        //             iblis.isTurun = false;
+        //         } else {
+        //             iblis.diLantai = 2;
+        //             iblis.isTurun = true;
+        //         }
+        //         iblis.isTurun = false;
+        //     } else {
+        //         iblis.diLantai -= 2;
+        //     }
+        // } else {
+        //     if (iblis.diLantai == iblis.diGedung.jumlahLantai) {
+        //         iblis.diGedung = iblis.diGedung.next;
+        //         iblis.diLantai = iblis.diGedung.jumlahLantai-1;
+        //         iblis.isTurun = true;
+        //     } else if (iblis.diLantai == iblis.diGedung.jumlahLantai - 1){
+        //         iblis.diGedung = iblis.diGedung.next;
+        //         iblis.diLantai = iblis.diGedung.jumlahLantai;
+        //         iblis.isTurun = true;
 
-    // taken from https://codeforces.com/submissions/Petr
-    // together with PrintWriter, these input-output (IO) is much faster than the
-    // usual Scanner(System.in) and System.out
-    // please use these classes to avoid your fast algorithm gets Time Limit
-    // Exceeded caused by slow input-output (IO)
+        //     } else {
+        //         iblis.diLantai += 2;
+        //     }
+        // }
+
+        if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
+            jumlahBertemu++;
+        }
+
+        out.print(denji.diGedung.nama + " ");
+        out.print(denji.diLantai + " ");
+        out.print(iblis.diGedung.nama + " ");
+        out.print(iblis.diLantai + " ");
+        out.println(jumlahBertemu);
+
+        out.println("=== arah iblis " + iblis.isTurun);
+        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
+        out.println("=== arah denji " + denji.isTurun);
+        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
+    }
+
+    // TODO: Implemen perintah HANCUR
+    static void hancur() {
+        if (denji.diLantai != 1){
+            if (denji.diGedung != iblis.diGedung){
+                denji.diGedung.jumlahLantai--;
+                denji.diLantai--;
+                out.println(denji.diGedung.nama + " " + denji.diLantai);
+            } else {
+                if (denji.diLantai-1 != iblis.diLantai){
+                    denji.diGedung.jumlahLantai--;
+                    denji.diLantai--;
+                    out.println(denji.diGedung.nama + " " + denji.diLantai);
+                } else {
+                    out.println(denji.diGedung.nama + " " + (-1));
+                }
+            }
+        } else {
+            out.println(denji.diGedung.nama + " " + (-1));
+        }
+
+        out.println("=== arah iblis " + iblis.isTurun);
+        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
+        out.println("=== arah denji " + denji.isTurun);
+        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
+    }
+
+    // TODO: Implemen perintah TAMBAH
+    static void tambah() {
+        if (denji.diGedung == iblis.diGedung) { 
+            if (denji.diLantai >= iblis.diLantai){
+                denji.diLantai++;
+                out.println("=== denji di: " + denji.diLantai);
+            }
+        }
+        iblis.diGedung.jumlahLantai++;
+        iblis.diLantai++;
+
+        out.println("=== arah iblis " + iblis.isTurun);
+        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
+        out.println("=== arah denji " + denji.isTurun);
+        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
+        out.println(iblis.diGedung.nama + " " + (iblis.diLantai-1));
+    }
+
+    // TODO: Implemen perintah PINDAH
+    static void pindah() {
+        denji.diGedung = denji.diGedung.next;
+        if (denji.isTurun){
+            denji.diLantai = denji.diGedung.jumlahLantai;
+        } else {
+            denji.diLantai = 1;
+        }
+        if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
+            jumlahBertemu++;
+        }
+        out.println(denji.diGedung.nama + " " + denji.diLantai);
+        
+        out.println("=== arah iblis " + iblis.isTurun);
+        out.println("=== " + iblis.diGedung.nama + " " + iblis.diLantai);
+        out.println("=== arah denji " + denji.isTurun);
+        out.println("=== "+ denji.diGedung.nama + " " + denji.diLantai);
+    }
+
+    static void gerakIblis(){
+        // kalo iblis sedang turun
+        if (iblis.isTurun){
+            if (iblis.diLantai == 1){
+                iblis.diGedung = iblis.diGedung.next;
+                iblis.diLantai = 1;
+                iblis.isTurun = false;
+            } else {
+                iblis.diLantai--;
+            }
+        }
+        // sedang naik
+        else {
+            if (iblis.diLantai == iblis.diGedung.jumlahLantai){
+                iblis.diGedung = iblis.diGedung.next;
+                iblis.diLantai = iblis.diGedung.jumlahLantai;
+                iblis.isTurun = true;
+            } else {
+                iblis.diLantai++;
+            }
+        }
+    }
+
     static class InputReader {
         public BufferedReader reader;
         public StringTokenizer tokenizer;
-
         public InputReader(InputStream stream) {
             reader = new BufferedReader(new InputStreamReader(stream), 32768);
             tokenizer = null;
         }
-
         public String next() {
             while (tokenizer == null || !tokenizer.hasMoreTokens()) {
                 try {
@@ -82,51 +257,49 @@ public class Lab4 {
             }
             return tokenizer.nextToken();
         }
-
         public int nextInt() {
             return Integer.parseInt(next());
         }
-
-        public char nextChar() {
-            return next().equals("R") ? 'R' : 'B';
-        }
     }
 }
 
+
+
+// TODO: Lengkapi Class Lantai
+class Lantai {
+    public Lantai() {}
+}
+// TODO: Lengkapi Class Gedung
 class Gedung {
     String nama;
-    int jumlahLantai;
-    boolean isIblisHere;
-    boolean isDenjiHere;
     Gedung next;
+    int jumlahLantai;
     public Gedung(String nama, int jumlahLantai) {
         this.nama = nama;
         this.jumlahLantai = jumlahLantai;
-        this.isDenjiHere = false;
-        this.isIblisHere = false;
-        this.next = null;
     }
-}
-class Lab4Character {
-    int diLantai;
-    String diGedung;
-    boolean isTurun;
 }
 class ListGedung {
     Gedung first;
     Gedung last;
-
     public ListGedung() {
         this.first = null;
         this.last = null;
     }
-    public void add(Gedung newGedung){
+    public void addGedung(Gedung newGedung){
         if (first == null){
             first = newGedung;
-            last = newGedung;
         } else {
             last.next = newGedung;
-            last = newGedung;
         }
+        last = newGedung;
+        last.next = first;
     }
+}
+// TODO: Lengkapi Class Karakter
+class Karakter {
+    int diLantai;
+    boolean isTurun;
+    Gedung diGedung;
+    public Karakter(){}
 }

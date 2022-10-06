@@ -43,10 +43,9 @@ class Karakter {
     public Karakter(){}
 }
 
-public class Test {
-
+public class Halo {
     private static InputReader in;
-    static PrintWriter out;
+    private static PrintWriter out;
     static ListGedung listGedung = new ListGedung();
     static Karakter denji = new Karakter();
     static Karakter iblis = new Karakter();
