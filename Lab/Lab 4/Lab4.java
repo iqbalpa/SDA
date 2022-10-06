@@ -82,23 +82,8 @@ public class Lab4 {
     // TODO: Implemen perintah GERAK
     static void gerak() {
         // gerak denji
-        if (denji.isTurun) {
-            if (denji.diLantai == 1) {
-                denji.diGedung = denji.diGedung.next;
-                denji.diLantai = 1;
-                denji.isTurun = false;
-            } else {
-                denji.diLantai--;
-            }
-        } else {
-            if (denji.diLantai == denji.diGedung.jumlahLantai) {
-                denji.diGedung = denji.diGedung.next;
-                denji.diLantai = denji.diGedung.jumlahLantai;
-                denji.isTurun = true;
-            } else {
-                denji.diLantai++;
-            }
-        }
+        gerakDenji();
+
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
             jumlahBertemu++;
         }
@@ -143,7 +128,6 @@ public class Lab4 {
         if (denji.diGedung == iblis.diGedung) { 
             if (denji.diLantai >= iblis.diLantai){
                 denji.diLantai++;
-                out.println("=== denji di: " + denji.diLantai);
             }
         }
         iblis.diGedung.jumlahLantai++;
@@ -164,7 +148,28 @@ public class Lab4 {
         }
         out.println(denji.diGedung.nama + " " + denji.diLantai);
     }
-
+    static void gerakDenji(){
+        // kalo denji sedang turun
+        if (denji.isTurun) {
+            if (denji.diLantai == 1) {
+                denji.diGedung = denji.diGedung.next;
+                denji.diLantai = 1;
+                denji.isTurun = false;
+            } else {
+                denji.diLantai--;
+            }
+        } 
+        // sedang naik
+        else {
+            if (denji.diLantai == denji.diGedung.jumlahLantai) {
+                denji.diGedung = denji.diGedung.next;
+                denji.diLantai = denji.diGedung.jumlahLantai;
+                denji.isTurun = true;
+            } else {
+                denji.diLantai++;
+            }
+        }
+    }
     static void gerakIblis(){
         // kalo iblis sedang turun
         if (iblis.isTurun){
