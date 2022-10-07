@@ -88,7 +88,9 @@ public class Lab4 {
             jumlahBertemu++;
         }
         // gerak iblis
-        gerakIblis();
+        if (iblis.diLantai != 2 || iblis.diLantai != iblis.diGedung.jumlahLantai - 1) {
+            gerakIblis();
+        }
         gerakIblis();
 
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
