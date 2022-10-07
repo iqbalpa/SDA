@@ -35,6 +35,7 @@ public class Lab4 {
         String gedungDenji = in.next();
         int lantaiDenji = in.nextInt();
         // TODO: Tetapkan kondisi awal Denji
+        // loop over the list of gedung and find the initialize gedung for denji
         Gedung temp = listGedung.first;
         while (temp.next != null){
             if (temp.nama.equals(gedungDenji)){
@@ -43,7 +44,9 @@ public class Lab4 {
             }
             temp = temp.next;
         }
+        // set the initialize lantai for denji
         denji.diLantai = lantaiDenji;
+        // set the initialize walk direction for denji
         denji.isTurun = false;
 
 
@@ -51,6 +54,7 @@ public class Lab4 {
         String gedungIblis = in.next();
         int lantaiIblis = in.nextInt();
         // TODO: Tetapkan kondisi awal Iblis
+        // loop over the list of gedung and find the initialize gedung for iblis
         temp = listGedung.first;
         while(temp.next != null){
             if(temp.nama.equals(gedungIblis)){
@@ -59,7 +63,9 @@ public class Lab4 {
             }
             temp = temp.next;
         }
+        // set the initialize lantai for iblis
         iblis.diLantai = lantaiIblis;
+        // set the initialize walk direction for iblis
         iblis.isTurun = true;
 
 
@@ -83,14 +89,14 @@ public class Lab4 {
     static void gerak() {
         // gerak denji
         gerakDenji();
-
+        // if denji and iblis meet, increment jumlahBertemu
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
             jumlahBertemu++;
         }
         // gerak iblis
         gerakIblis();
         gerakIblis();
-
+        // if denji and iblis meet, increment jumlahBertemu
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
             jumlahBertemu++;
         }
@@ -104,13 +110,19 @@ public class Lab4 {
 
     // TODO: Implemen perintah HANCUR
     static void hancur() {
+        // if denji is not in the first floor
         if (denji.diLantai != 1){
+            // if denji and iblis arent in the same gedung
             if (denji.diGedung != iblis.diGedung){
                 denji.diGedung.jumlahLantai--;
                 denji.diLantai--;
                 out.println(denji.diGedung.nama + " " + denji.diLantai);
-            } else {
+            } 
+            // if denji and iblis are in the same gedung
+            else {
+                // if iblis is not in the one floor below denji
                 if (denji.diLantai-1 != iblis.diLantai){
+                    // if iblis above the denji's position
                     if (iblis.diLantai >= denji.diLantai){
                         iblis.diLantai--;
                     }
@@ -128,7 +140,9 @@ public class Lab4 {
 
     // TODO: Implemen perintah TAMBAH
     static void tambah() {
+        // if denji and iblis are in the same gedung
         if (denji.diGedung == iblis.diGedung) { 
+            // if denji is above the iblis's position
             if (denji.diLantai >= iblis.diLantai){
                 denji.diLantai++;
             }
@@ -141,19 +155,26 @@ public class Lab4 {
     // TODO: Implemen perintah PINDAH
     static void pindah() {
         denji.diGedung = denji.diGedung.next;
+        // if denji is Turun
         if (denji.isTurun){
             denji.diLantai = denji.diGedung.jumlahLantai;
-        } else {
+        } 
+        // if denji is Naik
+        else {
             denji.diLantai = 1;
         }
+        // if denji meet iblis, increment jumlahBertemu
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
             jumlahBertemu++;
         }
         out.println(denji.diGedung.nama + " " + denji.diLantai);
     }
+
+    // method for gerak denji
     static void gerakDenji(){
         // kalo denji sedang turun
         if (denji.isTurun) {
+            // if denji is in the first floor
             if (denji.diLantai == 1) {
                 denji.diGedung = denji.diGedung.next;
                 denji.diLantai = 1;
@@ -164,6 +185,7 @@ public class Lab4 {
         } 
         // sedang naik
         else {
+            // if denji is in the top floor of the gedung
             if (denji.diLantai == denji.diGedung.jumlahLantai) {
                 denji.diGedung = denji.diGedung.next;
                 denji.diLantai = denji.diGedung.jumlahLantai;
@@ -173,9 +195,11 @@ public class Lab4 {
             }
         }
     }
+    // method for gerak iblis
     static void gerakIblis(){
         // kalo iblis sedang turun
         if (iblis.isTurun){
+            // if iblis is in the first floor
             if (iblis.diLantai == 1){
                 iblis.diGedung = iblis.diGedung.next;
                 iblis.diLantai = 1;
@@ -186,6 +210,7 @@ public class Lab4 {
         }
         // sedang naik
         else {
+            // if iblis is in the top of the gedung
             if (iblis.diLantai == iblis.diGedung.jumlahLantai){
                 iblis.diGedung = iblis.diGedung.next;
                 iblis.diLantai = iblis.diGedung.jumlahLantai;
