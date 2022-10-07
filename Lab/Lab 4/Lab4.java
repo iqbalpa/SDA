@@ -88,9 +88,7 @@ public class Lab4 {
             jumlahBertemu++;
         }
         // gerak iblis
-        if (iblis.diLantai != 2 || iblis.diLantai != iblis.diGedung.jumlahLantai - 1) {
-            gerakIblis();
-        }
+        gerakIblis();
         gerakIblis();
 
         if (denji.diGedung == iblis.diGedung && denji.diLantai == iblis.diLantai) {
@@ -113,6 +111,9 @@ public class Lab4 {
                 out.println(denji.diGedung.nama + " " + denji.diLantai);
             } else {
                 if (denji.diLantai-1 != iblis.diLantai){
+                    if (iblis.diLantai >= denji.diLantai){
+                        iblis.diLantai--;
+                    }
                     denji.diGedung.jumlahLantai--;
                     denji.diLantai--;
                     out.println(denji.diGedung.nama + " " + denji.diLantai);
