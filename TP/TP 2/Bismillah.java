@@ -59,6 +59,9 @@ public class Bismillah {
                 int H = in.nextInt();
                 lihat(L, H);
             }
+            else if (query.equals("EVALUASI")){
+                evaluasi();
+            }
         }
         
         out.close();
@@ -76,6 +79,9 @@ public class Bismillah {
 
     // query LIHAT
     static void lihat(int batasBawah, int batasAtas){}
+
+    // query EVALUASI
+    static void evaluasi(){}
 
     
     // referensi: template Lab SDA biasanya
