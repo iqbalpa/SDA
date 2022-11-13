@@ -155,7 +155,20 @@ public class Bismillah {
 
     // query EVALUASI
     static void evaluasi(){
-        out.println("EVALUASI");
+        MesinPermainan mesinBudi = funzone.posisiBudi;
+        int idMesinBudi = mesinBudi.id;
+        // sort array myMesin
+        mergeSort(myMesin, 0, myMesin.length-1);
+        funzone.first = null;
+        funzone.last = null;
+        int posisiBudi = -999;
+        for (int i=1; i<=myMesin.length; i++){
+            funzone.addMesinPermainan(myMesin[i-1]);
+            if (myMesin[i-1].id == idMesinBudi){
+                posisiBudi = i;
+            }
+        }
+        out.println(posisiBudi);
     }
 
 
@@ -233,7 +246,7 @@ public class Bismillah {
 class Skor {
     int skor, jumlahSkor;
     int height, count;
-    int sumOfSubtree;
+    // int sumOfSubtree;
     Skor left, right;
     Skor (int skor) {
         this.skor = skor;
@@ -242,7 +255,7 @@ class Skor {
         this.right = null;
         this.height = 1;
         this.count = 1;
-        this.sumOfSubtree = skor;
+        // this.sumOfSubtree = skor;
     }
 }
 
@@ -252,9 +265,11 @@ class MesinPermainan implements Comparable<MesinPermainan> {
     int id;
     Skor root;
     int currentCount;
+    int totalSkor;
     MesinPermainan next, prev;
     MesinPermainan(int id){
         this.id = id; 
+        this.totalSkor = 0;
     }
 
     // ============== GETTER ==============
@@ -272,10 +287,10 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         if (node == null) return 0;
         return node.count + (node.jumlahSkor - 1);
     }
-    int getSumOfSubtree(Skor node){
-        if (node == null) return 0;
-        return node.sumOfSubtree * node.jumlahSkor;
-    }
+    // int getSumOfSubtree(Skor node){
+    //     if (node == null) return 0;
+    //     return node.sumOfSubtree * node.jumlahSkor;
+    // }
 
     // =============== ROTATE ===============
     Skor rightRotate(Skor y) {
@@ -291,11 +306,11 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         y.count = getCount(y) - getCount(x) + getCount(z);
         x.count = getCount(x.left) + getCount(y);
         x.count = getCount(x) - getCount(z) + getCount(y);
-        // update sumOfSubtree
-        y.sumOfSubtree = getSumOfSubtree(y.left) + getSumOfSubtree(y.right);
-        y.sumOfSubtree = getSumOfSubtree(y) - getSumOfSubtree(x) + getSumOfSubtree(z);
-        x.sumOfSubtree = getSumOfSubtree(x.left) + getSumOfSubtree(y);
-        x.sumOfSubtree = getSumOfSubtree(x) - getSumOfSubtree(z) + getSumOfSubtree(y);
+        // // update sumOfSubtree
+        // y.sumOfSubtree = getSumOfSubtree(y.left) + getSumOfSubtree(y.right);
+        // y.sumOfSubtree = getSumOfSubtree(y) - getSumOfSubtree(x) + getSumOfSubtree(z);
+        // x.sumOfSubtree = getSumOfSubtree(x.left) + getSumOfSubtree(y);
+        // x.sumOfSubtree = getSumOfSubtree(x) - getSumOfSubtree(z) + getSumOfSubtree(y);
         return x;
     }
     Skor leftRotate(Skor x) {
@@ -312,16 +327,17 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         x.count = getCount(x) - getCount(y) + getCount(z);
         y.count = getCount(y.right) + getCount(x);
         y.count = getCount(y) - getCount(z) + getCount(x);
-        // update sumOfSubtree
-        x.sumOfSubtree = getSumOfSubtree(x.left) + getSumOfSubtree(x.right);
-        x.sumOfSubtree = getSumOfSubtree(x) - getSumOfSubtree(y) + getSumOfSubtree(z);
-        y.sumOfSubtree = getSumOfSubtree(y.right) + getSumOfSubtree(x);
-        y.sumOfSubtree = getSumOfSubtree(y) - getSumOfSubtree(z) + getSumOfSubtree(x);
+        // // update sumOfSubtree
+        // x.sumOfSubtree = getSumOfSubtree(x.left) + getSumOfSubtree(x.right);
+        // x.sumOfSubtree = getSumOfSubtree(x) - getSumOfSubtree(y) + getSumOfSubtree(z);
+        // y.sumOfSubtree = getSumOfSubtree(y.right) + getSumOfSubtree(x);
+        // y.sumOfSubtree = getSumOfSubtree(y) - getSumOfSubtree(z) + getSumOfSubtree(x);
         return y;
     }
 
     // ================ INSERT =================
     Skor insertSkor(Skor node, int newSkor){
+        this.totalSkor += newSkor;
         if (node == null){
             return new Skor(newSkor);
         }
@@ -330,10 +346,12 @@ class MesinPermainan implements Comparable<MesinPermainan> {
                 currentCount += getCount(node.left);
             }
             node.jumlahSkor++;
+            // node.sumOfSubtree += newSkor;
             return node;
         }
         if (node.skor > newSkor) {
             node.count++;
+            // node.sumOfSubtree += newSkor;
             node.left = insertSkor(node.left, newSkor);
         }
         else {
@@ -342,6 +360,7 @@ class MesinPermainan implements Comparable<MesinPermainan> {
             }
             currentCount += node.jumlahSkor;
             node.count++;
+            // node.sumOfSubtree += newSkor;
             node.right = insertSkor(node.right, newSkor);
         }
 
@@ -380,13 +399,16 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         return current;
     }
     Skor deleteSkor(Skor node, int skor){
+        this.totalSkor -= skor;
         if (node == null) return node;
         if (skor < node.skor) {
             node.count--;
+            // node.sumOfSubtree -= skor;
             node.left = deleteSkor(node.left, skor);
         }
         else if (skor > node.skor) {
             node.count--;
+            // node.sumOfSubtree -= skor;
             node.right = deleteSkor(node.right, skor);
         }
         else {
@@ -457,8 +479,12 @@ class MesinPermainan implements Comparable<MesinPermainan> {
 
     // override compareTo
     public int compareTo(MesinPermainan other){
-        if (this.root.sumOfSubtree > other.root.sumOfSubtree) return 1;
-        if (this.root.sumOfSubtree < other.root.sumOfSubtree) return -1;
+        // if (this.root.sumOfSubtree > other.root.sumOfSubtree) return -1;
+        // if (this.root.sumOfSubtree < other.root.sumOfSubtree) return 1;
+        // else return this.id - other.id;
+        // return 1;
+        if (this.totalSkor > other.totalSkor) return -1;
+        if (this.totalSkor < other.totalSkor) return 1;
         else return this.id - other.id;
     }
 }
