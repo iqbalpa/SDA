@@ -9,6 +9,7 @@ import java.util.*;
 public class Bismillah {
     private static InputReader in;
     private static PrintWriter out;
+    static FunZone funzone = new FunZone();
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -22,13 +23,18 @@ public class Bismillah {
         int N = in.nextInt();
         for (int i=1; i<=N; i++){
             MesinPermainan newMesin = new MesinPermainan(i);
+            funzone.addMesinPermainan(newMesin);
 
             // banyak skor awal pada mesin ke-i
             int Mi = in.nextInt();
+            // System.out.println("======== mesin ke-" + i);
             for (int j=1; j<=Mi; j++){
                 int Zj = in.nextInt();
+                newMesin.root = newMesin.insertSkor(newMesin.root, Zj);
+                // System.out.println("======= " + newMesin.root.skor);
             }
         }
+        funzone.posisiBudi = funzone.first;
 
         // banyak query
         int Q = in.nextInt();
@@ -68,16 +74,35 @@ public class Bismillah {
 
     // method untuk handle masing-masing query
     // query MAIN
-    static void mainmain(int skorBudi){}
+    static void mainmain(int skorBudi){
+        MesinPermainan mesinBudi = funzone.posisiBudi;
+        mesinBudi.root = mesinBudi.insertSkor(mesinBudi.root, skorBudi);
+        int greater = mesinBudi.greaterThanX(mesinBudi.root, skorBudi);
+        int urutanSkorBudi = greater + 1;
+        out.println(urutanSkorBudi);
+    }
 
     // query GERAK
-    static void gerak(String arahGerak){}
+    static void gerak(String arahGerak){
+        if (arahGerak.equals("KANAN")){
+            funzone.posisiBudi = funzone.posisiBudi.next;
+        }
+        else if (arahGerak.equals("KIRI")){
+            funzone.posisiBudi = funzone.posisiBudi.prev;
+        }
+        out.println(funzone.posisiBudi.id);
+    }
 
     // query HAPUS
     static void hapus(int banyakSkor){}
 
     // query LIHAT
-    static void lihat(int batasBawah, int batasAtas){}
+    static void lihat(int batasBawah, int batasAtas){
+        int greaterThanL = funzone.posisiBudi.greaterThanX(funzone.posisiBudi.root, batasBawah);
+        int greaterThanH = funzone.posisiBudi.greaterThanX(funzone.posisiBudi.root, batasAtas);
+        int banyakSkor = greaterThanH - greaterThanL;
+        out.println(banyakSkor);
+    }
 
     // query EVALUASI
     static void evaluasi(){}
@@ -240,20 +265,32 @@ class MesinPermainan {
         Skor temp = upperBound(node.right, batasAtas);
         return (temp.skor <= batasAtas) ? temp : node;
     }
+    int greaterThanX(Skor node, int x){
+        if (node == null) return 0;
+        if (node.skor == x) return getCount(node.right);
+        if (node.skor > x) return getCount(node.right) + node.jumlahSkor + greaterThanX(node.left, x);
+        return greaterThanX(node.right, x);
+    }
 }
 
 // FunZone sebagai kumpulan MesinPermainan as LinkedList class
 class FunZone {
-    MesinPermainan first, last, current;
+    MesinPermainan first, last, posisiBudi;
     FunZone(){
         this.first = null;
         this.last = null;
-        this.current = null; // buat posisi Budi
+        this.posisiBudi = null; // buat posisi Budi
     }
     void addMesinPermainan(MesinPermainan newMesin){
         if (first == null){
             first = newMesin;
             last = first;
+        } else if (first == last){
+            newMesin.prev = last;
+            last = newMesin;
+            first.next = last;
+            last.next = first;
+            first.prev = last;
         } else {
             newMesin.prev = last;
             last = newMesin;
