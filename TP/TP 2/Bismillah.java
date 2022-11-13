@@ -100,14 +100,11 @@ public class Bismillah {
     static void hapus(int banyakSkor){
         // TODO create method getSum and create sum attribute to each Skor node
         long sumOfSkor = 0;
-        Skor rootNode = funzone.posisiBudi.root;
-
         MesinPermainan mesinBudi = funzone.posisiBudi;
         int banyakSkorDiMesin = mesinBudi.getCount(mesinBudi.root);
+
         if (banyakSkorDiMesin <= banyakSkor) {
-            mesinBudi.root = null;
-        } else {
-            for (int i=0; i<banyakSkor; i++){
+            for (int i=0; i<banyakSkorDiMesin; i++){
                 Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
                 if (maxSkor.jumlahSkor > 1){
                     sumOfSkor += maxSkor.skor;
@@ -117,7 +114,6 @@ public class Bismillah {
                     mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
                 }
             }
-
             if (mesinBudi == funzone.last){
                 funzone.posisiBudi = funzone.first;
             } else if (funzone.first == funzone.last){
@@ -129,10 +125,23 @@ public class Bismillah {
                 mesinBudi.next.prev = mesinBudi.prev;
                 funzone.last.next = mesinBudi;
                 mesinBudi.prev = funzone.last;
+                funzone.last = mesinBudi;
                 funzone.last.next = funzone.first;
                 funzone.first.prev = funzone.last;
             }
+        } else {
+            for (int i=0; i<banyakSkor; i++){
+                Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
+                if (maxSkor.jumlahSkor > 1){
+                    sumOfSkor += maxSkor.skor;
+                    maxSkor.jumlahSkor--;
+                } else {
+                    sumOfSkor += maxSkor.skor;
+                    mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
+                }
+            }
         }
+    
         out.println(sumOfSkor);
     }
 
@@ -280,6 +289,11 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         y.count = getCount(y) - getCount(x) + getCount(z);
         x.count = getCount(x.left) + getCount(y);
         x.count = getCount(x) - getCount(z) + getCount(y);
+        // update sumOfSubtree
+        y.sumOfSubtree = getSumOfSubtree(y.left) + getSumOfSubtree(y.right);
+        y.sumOfSubtree = getSumOfSubtree(y) - getSumOfSubtree(x) + getSumOfSubtree(z);
+        x.sumOfSubtree = getSumOfSubtree(x.left) + getSumOfSubtree(y);
+        x.sumOfSubtree = getSumOfSubtree(x) - getSumOfSubtree(z) + getSumOfSubtree(y);
         return x;
     }
     Skor leftRotate(Skor x) {
@@ -296,6 +310,11 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         x.count = getCount(x) - getCount(y) + getCount(z);
         y.count = getCount(y.right) + getCount(x);
         y.count = getCount(y) - getCount(z) + getCount(x);
+        // update sumOfSubtree
+        x.sumOfSubtree = getSumOfSubtree(x.left) + getSumOfSubtree(x.right);
+        x.sumOfSubtree = getSumOfSubtree(x) - getSumOfSubtree(y) + getSumOfSubtree(z);
+        y.sumOfSubtree = getSumOfSubtree(y.right) + getSumOfSubtree(x);
+        y.sumOfSubtree = getSumOfSubtree(y) - getSumOfSubtree(z) + getSumOfSubtree(x);
         return y;
     }
 
@@ -454,12 +473,14 @@ class FunZone {
             last = first;
         } else if (first == last){
             newMesin.prev = last;
+            last.next = newMesin;
             last = newMesin;
             first.next = last;
             last.next = first;
             first.prev = last;
         } else {
             newMesin.prev = last;
+            last.next = newMesin;
             last = newMesin;
             last.next = first;
             first.prev = last;
