@@ -10,6 +10,7 @@ public class Bismillah {
     private static InputReader in;
     private static PrintWriter out;
     static FunZone funzone = new FunZone();
+    static MesinPermainan[] myMesin;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -21,9 +22,11 @@ public class Bismillah {
 
         // banyak mesin pada FunZone
         int N = in.nextInt();
+        myMesin = new MesinPermainan[N];
         for (int i=1; i<=N; i++){
             MesinPermainan newMesin = new MesinPermainan(i);
             funzone.addMesinPermainan(newMesin);
+            myMesin[i-1] = newMesin;
 
             // banyak skor awal pada mesin ke-i
             int Mi = in.nextInt();
@@ -94,7 +97,44 @@ public class Bismillah {
     }
 
     // query HAPUS
-    static void hapus(int banyakSkor){}
+    static void hapus(int banyakSkor){
+        // TODO create method getSum and create sum attribute to each Skor node
+        long sumOfSkor = 0;
+        Skor rootNode = funzone.posisiBudi.root;
+
+        MesinPermainan mesinBudi = funzone.posisiBudi;
+        int banyakSkorDiMesin = mesinBudi.getCount(mesinBudi.root);
+        if (banyakSkorDiMesin <= banyakSkor) {
+            mesinBudi.root = null;
+        } else {
+            for (int i=0; i<banyakSkor; i++){
+                Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
+                if (maxSkor.jumlahSkor > 1){
+                    sumOfSkor += maxSkor.skor;
+                    maxSkor.jumlahSkor--;
+                } else {
+                    sumOfSkor += maxSkor.skor;
+                    mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
+                }
+            }
+
+            if (mesinBudi == funzone.last){
+                funzone.posisiBudi = funzone.first;
+            } else if (funzone.first == funzone.last){
+                // do nothing
+            } else {
+                funzone.posisiBudi = funzone.posisiBudi.next;
+                // pindah mesinBudi ke paling kanan
+                mesinBudi.prev.next = mesinBudi.next;
+                mesinBudi.next.prev = mesinBudi.prev;
+                funzone.last.next = mesinBudi;
+                mesinBudi.prev = funzone.last;
+                funzone.last.next = funzone.first;
+                funzone.first.prev = funzone.last;
+            }
+        }
+        out.println(sumOfSkor);
+    }
 
     // query LIHAT
     static void lihat(int batasBawah, int batasAtas){
@@ -106,6 +146,51 @@ public class Bismillah {
 
     // query EVALUASI
     static void evaluasi(){}
+
+
+    // create method for merge sort the array myMesin using its compareTo method
+    static void mergeSort(MesinPermainan[] arr, int l, int r){
+        if (l < r){
+            int m = (l+r)/2;
+            mergeSort(arr, l, m);
+            mergeSort(arr, m+1, r);
+            merge(arr, l, m, r);
+        }
+    }
+    static void merge(MesinPermainan[] arr, int l, int m, int r){
+        int n1 = m - l + 1;
+        int n2 = r - m;
+        MesinPermainan[] L = new MesinPermainan[n1];
+        MesinPermainan[] R = new MesinPermainan[n2];
+        for (int i=0; i<n1; i++){
+            L[i] = arr[l+i];
+        }
+        for (int j=0; j<n2; j++){
+            R[j] = arr[m+1+j];
+        }
+        int i=0, j=0;
+        int k = l;
+        while (i < n1 && j < n2){
+            if (L[i].compareTo(R[j]) <= 0){
+                arr[k] = L[i];
+                i++;
+            } else {
+                arr[k] = R[j];
+                j++;
+            }
+            k++;
+        }
+        while (i < n1){
+            arr[k] = L[i];
+            i++;
+            k++;
+        }
+        while (j < n2){
+            arr[k] = R[j];
+            j++;
+            k++;
+        }
+    }
 
     
     // referensi: template Lab SDA biasanya
@@ -137,6 +222,7 @@ public class Bismillah {
 class Skor {
     int skor, jumlahSkor;
     int height, count;
+    int sumOfSubtree;
     Skor left, right;
     Skor (int skor) {
         this.skor = skor;
@@ -145,12 +231,13 @@ class Skor {
         this.right = null;
         this.height = 1;
         this.count = 1;
+        this.sumOfSubtree = skor;
     }
 }
 
 // class untuk mesin permainan
 // mesin permainan sebagai AVL tree
-class MesinPermainan {
+class MesinPermainan implements Comparable<MesinPermainan> {
     int id;
     Skor root;
     int currentCount;
@@ -159,7 +246,7 @@ class MesinPermainan {
         this.id = id; 
     }
 
-    // method-method untuk operasi pada AVL tree    
+    // ============== GETTER ==============
     int getHeight(Skor node){
         if (node == null) return 0;
         return node.height;
@@ -174,6 +261,12 @@ class MesinPermainan {
         if (node == null) return 0;
         return node.count + (node.jumlahSkor - 1);
     }
+    int getSumOfSubtree(Skor node){
+        if (node == null) return 0;
+        return node.sumOfSubtree * node.jumlahSkor;
+    }
+
+    // =============== ROTATE ===============
     Skor rightRotate(Skor y) {
         Skor x = y.left;
         Skor z = x.right;
@@ -205,7 +298,8 @@ class MesinPermainan {
         y.count = getCount(y) - getCount(z) + getCount(x);
         return y;
     }
-    // !ganti metode buat menghitung jumlah child
+
+    // ================ INSERT =================
     Skor insertSkor(Skor node, int newSkor){
         if (node == null){
             return new Skor(newSkor);
@@ -251,6 +345,72 @@ class MesinPermainan {
         }
         return node;
     }
+
+    // ============== DELETE ==============
+    Skor findMax(Skor node){
+        if (node.right == null) return node;
+        return findMax(node.right);
+    }
+    Skor minValueSkor(Skor node){
+        Skor current = node;
+        while (current.left != null){
+            current = current.left;
+        }
+        return current;
+    }
+    Skor deleteSkor(Skor node, int skor){
+        if (node == null) return node;
+        if (skor < node.skor) {
+            node.count--;
+            node.left = deleteSkor(node.left, skor);
+        }
+        else if (skor > node.skor) {
+            node.count--;
+            node.right = deleteSkor(node.right, skor);
+        }
+        else {
+            if (node.left == null || node.right == null) {
+                Skor temp = null;
+                if (temp == node.left) {
+                    temp = node.right;
+                } else {
+                    temp = node.left;
+                }
+                if (temp == null) {
+                    temp = node;
+                    node = null;
+                } else {
+                    node = temp;
+                }
+            } else {
+                Skor temp = minValueSkor(node.right);
+                node.skor = temp.skor;
+                node.right = deleteSkor(node.right, temp.skor);
+            }
+        }
+        if (node == null) return node;
+        node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+        int balanceFactor = getBalance(node);
+        if (balanceFactor > 1) {
+            if (getBalance(node.left) >= 0) {
+                return rightRotate(node);
+            } else {
+                node.left = leftRotate(node.left);
+                return rightRotate(node);
+            }
+        }
+        if (balanceFactor < -1) {
+            if (getBalance(node.right) <= 0) {
+                return leftRotate(node);
+            } else {
+                node.right = rightRotate(node.right);
+                return leftRotate(node);
+            }
+        }
+        return node;
+    }
+
+    // ============== LOWER UPPER ==============
     Skor lowerBound(Skor node, int batasBawah){
         if (node == null) return null;
         if (node.skor == batasBawah) return node;
@@ -270,6 +430,13 @@ class MesinPermainan {
         if (node.skor == x) return getCount(node.right);
         if (node.skor > x) return getCount(node.right) + node.jumlahSkor + greaterThanX(node.left, x);
         return greaterThanX(node.right, x);
+    }
+
+    // override compareTo
+    public int compareTo(MesinPermainan other){
+        if (this.root.sumOfSubtree > other.root.sumOfSubtree) return 1;
+        if (this.root.sumOfSubtree < other.root.sumOfSubtree) return -1;
+        else return this.id - other.id;
     }
 }
 
