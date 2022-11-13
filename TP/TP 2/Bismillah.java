@@ -77,11 +77,11 @@ public class Bismillah {
 
     // method untuk handle masing-masing query
     // query MAIN
-    static void mainmain(int skorBudi){
+    static void mainmain(int skorBudi){ 
         MesinPermainan mesinBudi = funzone.posisiBudi;
         mesinBudi.root = mesinBudi.insertSkor(mesinBudi.root, skorBudi);
-        int greater = mesinBudi.greaterThanX(mesinBudi.root, skorBudi);
-        int urutanSkorBudi = greater + 1;
+        int greater = mesinBudi.greaterThanZ(mesinBudi.root, skorBudi);
+        int urutanSkorBudi = greater;
         out.println(urutanSkorBudi);
     }
 
@@ -147,14 +147,16 @@ public class Bismillah {
 
     // query LIHAT
     static void lihat(int batasBawah, int batasAtas){
-        int greaterThanL = funzone.posisiBudi.greaterThanX(funzone.posisiBudi.root, batasBawah);
-        int greaterThanH = funzone.posisiBudi.greaterThanX(funzone.posisiBudi.root, batasAtas);
-        int banyakSkor = greaterThanH - greaterThanL;
+        int greaterThanL = funzone.posisiBudi.greaterThanZ(funzone.posisiBudi.root, batasBawah);
+        int greaterThanH = funzone.posisiBudi.greaterThanZ(funzone.posisiBudi.root, batasAtas);
+        int banyakSkor = greaterThanL - greaterThanH + 1;
         out.println(banyakSkor);
     }
 
     // query EVALUASI
-    static void evaluasi(){}
+    static void evaluasi(){
+        out.println("EVALUASI");
+    }
 
 
     // create method for merge sort the array myMesin using its compareTo method
@@ -444,11 +446,13 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         Skor temp = upperBound(node.right, batasAtas);
         return (temp.skor <= batasAtas) ? temp : node;
     }
-    int greaterThanX(Skor node, int x){
+    int greaterThanZ(Skor node, int z){
         if (node == null) return 0;
-        if (node.skor == x) return getCount(node.right);
-        if (node.skor > x) return getCount(node.right) + node.jumlahSkor + greaterThanX(node.left, x);
-        return greaterThanX(node.right, x);
+        if (node.skor >= z) {
+            if (node.left == null) return 1;
+            return getCount(node) - getCount(node.left) + greaterThanZ(node.left, z);
+        }
+        else return greaterThanZ(node.right, z);
     }
 
     // override compareTo
