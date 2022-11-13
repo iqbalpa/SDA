@@ -111,16 +111,15 @@ public class Bismillah {
 // class untuk node skor di dalam mesin permainan
 class Skor {
     int skor, jumlahSkor;
-    int leftSize, rightSize, height;
+    int height, count;
     Skor left, right;
     Skor (int skor) {
         this.skor = skor;
         this.jumlahSkor = 1;
-        this.leftSize = 0;
-        this.rightSize = 0;
         this.left = null;
         this.right = null;
         this.height = 1;
+        this.count = 1;
     }
 }
 
@@ -129,6 +128,7 @@ class Skor {
 class MesinPermainan {
     int id;
     Skor root;
+    int currentCount;
     MesinPermainan next, prev;
     MesinPermainan(int id){
         this.id = id; 
@@ -145,39 +145,73 @@ class MesinPermainan {
         }
         return getHeight(node.left) - getHeight(node.right);
     }
-    Skor rightRotate(Skor node) {
-        Skor node1 = node.left;
-        Skor node2 = node1.right;
-        node1.right = node;
-        node.left = node2;
-        node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-        node1.height = Math.max(getHeight(node1.left), getHeight(node1.right)) + 1;
-        return node1;
+    int getCount(Skor node){
+        if (node == null) return 0;
+        return node.count + (node.jumlahSkor - 1);
     }
-    Skor leftRotate(Skor node) {
+    Skor rightRotate(Skor y) {
+        Skor x = y.left;
+        Skor z = x.right;
+        x.right = y;
+        y.left = z;
+        // update height
+        y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
+        x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
+        // update size
+        y.count = getCount(y) + getCount(z);
+        y.count = getCount(y) - getCount(x) + getCount(z);
+        x.count = getCount(x.left) + getCount(y);
+        x.count = getCount(x) - getCount(z) + getCount(y);
+        return x;
+    }
+    Skor leftRotate(Skor x) {
         // TODO: implement left rotate
-        Skor node1 = node.right;
-        Skor node2 = node1.left;
-        node1.left = node;
-        node.right = node2;
-        node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-        node1.height = Math.max(getHeight(node1.left), getHeight(node1.right)) + 1;
-        return node1;
+        Skor y = x.right;
+        Skor z = y.left;
+        y.left = x;
+        x.right = z;
+        // update height
+        x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
+        y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
+        // update size
+        x.count = getCount(x) + getCount(z);
+        x.count = getCount(x) - getCount(y) + getCount(z);
+        y.count = getCount(y.right) + getCount(x);
+        y.count = getCount(y) - getCount(z) + getCount(x);
+        return y;
     }
+    // !ganti metode buat menghitung jumlah child
     Skor insertSkor(Skor node, int newSkor){
-        if (node == null) return new Skor(newSkor);
-        if (newSkor < node.skor) node.left = insertSkor(node.left, newSkor);
-        else if (newSkor > node.skor) node.right = insertSkor(node.right, newSkor);
-        else node.jumlahSkor++;
-        
-        node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
-        int balanceFactor = getBalance(node);
+        if (node == null){
+            return new Skor(newSkor);
+        }
+        if (node.skor == newSkor) {
+            if (node.left != null) {
+                currentCount += getCount(node.left);
+            }
+            node.jumlahSkor++;
+            return node;
+        }
+        if (node.skor > newSkor) {
+            node.count++;
+            node.left = insertSkor(node.left, newSkor);
+        }
+        else {
+            if (node.left != null){
+                currentCount += getCount(node.left);
+            }
+            currentCount += node.jumlahSkor;
+            node.count++;
+            node.right = insertSkor(node.right, newSkor);
+        }
 
+        // balancing
+        node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+        int balanceFactor = getBalance(node);
         if (balanceFactor > 1) {
             if (newSkor < node.left.skor) {
                 return rightRotate(node);
-            }
-            else if (newSkor > node.left.skor) {
+            } else if (newSkor > node.left.skor) {
                 node.left = leftRotate(node.left);
                 return rightRotate(node);
             }
@@ -185,8 +219,7 @@ class MesinPermainan {
         if (balanceFactor < -1) {
             if (newSkor > node.right.skor) {
                 return leftRotate(node);
-            }
-            else if (newSkor < node.right.skor) {
+            } else if (newSkor < node.right.skor){
                 node.right = rightRotate(node.right);
                 return leftRotate(node);
             }
