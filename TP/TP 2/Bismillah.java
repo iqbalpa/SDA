@@ -109,16 +109,8 @@ public class Bismillah {
         if (banyakSkorDiMesin <= banyakSkor) {
             for (int i=0; i<banyakSkorDiMesin; i++){
                 Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
-                if (maxSkor.jumlahSkor > 1){
-                    sumOfSkor += maxSkor.skor;
-                    maxSkor.jumlahSkor--;
-                    // !harus handle jumlah count parent-nya
-                } else {
-                    sumOfSkor += maxSkor.skor;
-                    mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
-                    // maxSkor = mesinBudi.deleteSkor(maxSkor, maxSkor.skor);
-                    // mesinBudi.root = mesinBudi.removeMax(maxSkor);
-                }
+                sumOfSkor += maxSkor.skor;
+                mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
             }
             if (mesinBudi == funzone.last){
                 funzone.posisiBudi = funzone.first;
@@ -142,15 +134,8 @@ public class Bismillah {
         } else {
             for (int i=0; i<banyakSkor; i++){
                 Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
-                if (maxSkor.jumlahSkor > 1){
-                    sumOfSkor += maxSkor.skor;
-                    maxSkor.jumlahSkor--;
-                } else {
-                    sumOfSkor += maxSkor.skor;
-                    mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
-                    // maxSkor = mesinBudi.deleteSkor(maxSkor, maxSkor.skor);
-                    // mesinBudi.root = mesinBudi.removeMax(maxSkor);
-                }
+                sumOfSkor += maxSkor.skor;
+                mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.skor);
             }
         }
         out.print("=== HAPUS ");
@@ -344,9 +329,6 @@ class MesinPermainan implements Comparable<MesinPermainan> {
             return new Skor(newSkor);
         }
         if (node.skor == newSkor) {
-            if (node.left != null) {
-                currentCount += getCount(node.left);
-            }
             node.jumlahSkor++;
             return node;
         }
@@ -355,12 +337,7 @@ class MesinPermainan implements Comparable<MesinPermainan> {
             node.left = insertSkor(node.left, newSkor);
         }
         else {
-            if (node.left != null){
-                currentCount += getCount(node.left);
-            }
-            currentCount += node.jumlahSkor;
             node.count++;
-            // node.sumOfSubtree += newSkor;
             node.right = insertSkor(node.right, newSkor);
         }
 
@@ -412,23 +389,28 @@ class MesinPermainan implements Comparable<MesinPermainan> {
             node.right = deleteSkor(node.right, skor);
         }
         else {
-            if (node.left == null || node.right == null) {
-                Skor temp = null;
-                if (temp == node.left) {
-                    temp = node.right;
-                } else {
-                    temp = node.left;
-                }
-                if (temp == null) {
-                    temp = node;
-                    node = null;
-                } else {
-                    node = temp;
-                }
+            if (node.jumlahSkor > 1) {
+                node.jumlahSkor--;
+                node.count--;
             } else {
-                Skor temp = minValueSkor(node.right);
-                node.skor = temp.skor;
-                node.right = deleteSkor(node.right, temp.skor);
+                if (node.left == null || node.right == null) {
+                    Skor temp = null;
+                    if (temp == node.left) {
+                        temp = node.right;
+                    } else {
+                        temp = node.left;
+                    }
+                    if (temp == null) {
+                        temp = node;
+                        node = null;
+                    } else {
+                        node = temp;
+                    }
+                } else {
+                    Skor temp = minValueSkor(node.right);
+                    node.skor = temp.skor;
+                    node.right = deleteSkor(node.right, temp.skor);
+                }
             }
         }
         if (node == null) return node;
@@ -454,20 +436,20 @@ class MesinPermainan implements Comparable<MesinPermainan> {
     }
 
     // ============== LOWER UPPER ==============
-    Skor lowerBound(Skor node, int batasBawah){
-        if (node == null) return null;
-        if (node.skor == batasBawah) return node;
-        if (node.skor < batasBawah) return lowerBound(node.right, batasBawah);
-        Skor temp = lowerBound(node.left, batasBawah);
-        return (temp.skor >= batasBawah) ? temp : node;
-    }
-    Skor upperBound(Skor node, int batasAtas){
-        if (node == null) return null;
-        if (node.skor == batasAtas) return node;
-        if (node.skor > batasAtas) return upperBound(node.left, batasAtas);
-        Skor temp = upperBound(node.right, batasAtas);
-        return (temp.skor <= batasAtas) ? temp : node;
-    }
+    // Skor lowerBound(Skor node, int batasBawah){
+    //     if (node == null) return null;
+    //     if (node.skor == batasBawah) return node;
+    //     if (node.skor < batasBawah) return lowerBound(node.right, batasBawah);
+    //     Skor temp = lowerBound(node.left, batasBawah);
+    //     return (temp.skor >= batasBawah) ? temp : node;
+    // }
+    // Skor upperBound(Skor node, int batasAtas){
+    //     if (node == null) return null;
+    //     if (node.skor == batasAtas) return node;
+    //     if (node.skor > batasAtas) return upperBound(node.left, batasAtas);
+    //     Skor temp = upperBound(node.right, batasAtas);
+    //     return (temp.skor <= batasAtas) ? temp : node;
+    // }
     int greaterThanZ(Skor node, int z){
         if (node == null) return 0;
         if (node.skor == z) return 1 + getCount(node.right);
