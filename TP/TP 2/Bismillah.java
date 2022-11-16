@@ -11,6 +11,7 @@ public class Bismillah {
     private static PrintWriter out;
     static FunZone funzone = new FunZone();
     static MesinPermainan[] myMesin;
+    static HashMap<Integer, Integer> mymap = new HashMap<>();
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -30,11 +31,9 @@ public class Bismillah {
 
             // banyak skor awal pada mesin ke-i
             int Mi = in.nextInt();
-            // System.out.println("======== mesin ke-" + i);
             for (int j=1; j<=Mi; j++){
                 int Zj = in.nextInt();
                 newMesin.root = newMesin.insertSkor(newMesin.root, Zj);
-                // System.out.println("======= " + newMesin.root.skor);
             }
         }
         funzone.posisiBudi = funzone.first;
@@ -81,8 +80,7 @@ public class Bismillah {
         MesinPermainan mesinBudi = funzone.posisiBudi;
         mesinBudi.root = mesinBudi.insertSkor(mesinBudi.root, skorBudi);
         int greater = mesinBudi.greaterThanZ(mesinBudi.root, skorBudi);
-        int urutanSkorBudi = greater;
-        // out.println("===========mesin ke-" + mesinBudi.id);
+        int urutanSkorBudi = greater + 1;
         out.print("=== MAIN ");
         out.println(urutanSkorBudi);
     }
@@ -104,7 +102,7 @@ public class Bismillah {
         // TODO create method getSum and create sum attribute to each Skor node
         long sumOfSkor = 0;
         MesinPermainan mesinBudi = funzone.posisiBudi;
-        int banyakSkorDiMesin = mesinBudi.getCount(mesinBudi.root);
+        int banyakSkorDiMesin = mesinBudi.getSize(mesinBudi.root);
 
         if (banyakSkorDiMesin <= banyakSkor) {
             for (int i=0; i<banyakSkorDiMesin; i++){
@@ -129,7 +127,6 @@ public class Bismillah {
                 funzone.last = mesinBudi;
                 funzone.last.next = funzone.first;
                 funzone.first.prev = funzone.last;
-                // !misal first-nya pindah ke terakhir, blm dihandle
             }
         } else {
             for (int i=0; i<banyakSkor; i++){
@@ -147,7 +144,8 @@ public class Bismillah {
     static void lihat(int batasBawah, int batasAtas){
         int greaterThanL = funzone.posisiBudi.greaterThanZ(funzone.posisiBudi.root, batasBawah);
         int greaterThanH = funzone.posisiBudi.greaterThanZ(funzone.posisiBudi.root, batasAtas);
-        int banyakSkor = greaterThanL - greaterThanH;
+        int banyakSkor = greaterThanL - greaterThanH;        if (mymap.containsKey(batasBawah)) banyakSkor++;
+        if (mymap.containsKey(batasBawah)) banyakSkor++;
         out.print("=== LIHAT ");
         out.println(banyakSkor);
     }
@@ -166,15 +164,12 @@ public class Bismillah {
             if (myMesin[i-1].id == idMesinBudi){
                 posisiBudi = i;
             }
-            // if (i == 1) funzone.first = myMesin[i-1];
-            // if (i == myMesin.length) funzone.last = myMesin[i-1];
         }
         out.print("=== EVALUASI ");
         out.println(posisiBudi);
     }
 
 
-    // create method for merge sort the array myMesin using its compareTo method
     static void mergeSort(MesinPermainan[] arr, int l, int r){
         if (l < r){
             int m = (l+r)/2;
@@ -246,17 +241,16 @@ public class Bismillah {
 
 // class untuk node skor di dalam mesin permainan
 class Skor {
-    int skor, jumlahSkor;
-    int height, count;
-    // int sumOfSubtree;
+    int skor, numberOfSkor;
+    int height, size;
     Skor left, right;
     Skor (int skor) {
         this.skor = skor;
-        this.jumlahSkor = 1;
+        this.numberOfSkor = 1;
         this.left = null;
         this.right = null;
         this.height = 1;
-        this.count = 1;
+        this.size = 1;
     }
 }
 
@@ -265,7 +259,6 @@ class Skor {
 class MesinPermainan implements Comparable<MesinPermainan> {
     int id;
     Skor root;
-    int currentCount;
     long totalSkor;
     MesinPermainan next, prev;
     MesinPermainan(int id){
@@ -284,9 +277,13 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         }
         return getHeight(node.left) - getHeight(node.right);
     }
-    int getCount(Skor node){
+    int getSize(Skor node){
         if (node == null) return 0;
-        return node.count + (node.jumlahSkor - 1);
+        return node.size;
+    }
+    int getNumOfSkor(Skor node){
+        if (node == null) return 0;
+        return node.numberOfSkor;
     }
 
     // =============== ROTATE ===============
@@ -299,10 +296,10 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
         x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
         // update size
-        y.count = getCount(y) + getCount(z);
-        y.count = getCount(y) - getCount(x) + getCount(z);
-        x.count = getCount(x.left) + getCount(y);
-        x.count = getCount(x) - getCount(z) + getCount(y);
+        y.size = getSize(y.right) + getNumOfSkor(y.right) + getSize(z) + getNumOfSkor(z);
+        y.size = getSize(y) - (getSize(x) + getNumOfSkor(x)) + (getSize(z) + getNumOfSkor(z));
+        x.size = getSize(x.left) + getNumOfSkor(x.left) + getSize(y) + getNumOfSkor(y);
+        x.size = getSize(x) - (getSize(z) + getNumOfSkor(z)) + (getSize(y) + getNumOfSkor(y));
         return x;
     }
     Skor leftRotate(Skor x) {
@@ -315,10 +312,10 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         x.height = Math.max(getHeight(x.left), getHeight(x.right)) + 1;
         y.height = Math.max(getHeight(y.left), getHeight(y.right)) + 1;
         // update size
-        x.count = getCount(x) + getCount(z);
-        x.count = getCount(x) - getCount(y) + getCount(z);
-        y.count = getCount(y.right) + getCount(x);
-        y.count = getCount(y) - getCount(z) + getCount(x);
+        x.size = getSize(x.left) + getNumOfSkor(x.left) + getSize(z) + getNumOfSkor(z);
+        x.size = getSize(x) - (getSize(y) + getNumOfSkor(y)) + (getSize(z) + getNumOfSkor(z));
+        y.size = getSize(y.right) + getNumOfSkor(y.right) + getSize(x) + getNumOfSkor(x);
+        y.size = getSize(y) - (getSize(z) + getNumOfSkor(z)) + (getSize(x) + getNumOfSkor(x));
         return y;
     }
 
@@ -329,15 +326,16 @@ class MesinPermainan implements Comparable<MesinPermainan> {
             return new Skor(newSkor);
         }
         if (node.skor == newSkor) {
-            node.jumlahSkor++;
+            node.numberOfSkor++;
+            node.size++;
             return node;
         }
         if (node.skor > newSkor) {
-            node.count++;
+            node.size++;
             node.left = insertSkor(node.left, newSkor);
         }
         else {
-            node.count++;
+            node.size++;
             node.right = insertSkor(node.right, newSkor);
         }
 
@@ -365,7 +363,8 @@ class MesinPermainan implements Comparable<MesinPermainan> {
 
     // ============== DELETE ==============
     Skor findMax(Skor node){
-        if (node.right == null) return node;
+        if (node == null) return null;
+        else if (node.right == null) return node;
         return findMax(node.right);
     }
     Skor minValueSkor(Skor node){
@@ -379,19 +378,17 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         this.totalSkor -= skor;
         if (node == null) return node;
         if (skor < node.skor) {
-            node.count--;
-            // node.sumOfSubtree -= skor;
+            node.size--;
             node.left = deleteSkor(node.left, skor);
         }
         else if (skor > node.skor) {
-            node.count--;
-            // node.sumOfSubtree -= skor;
+            node.size--;
             node.right = deleteSkor(node.right, skor);
         }
         else {
-            if (node.jumlahSkor > 1) {
-                node.jumlahSkor--;
-                node.count--;
+            if (node.numberOfSkor > 1) {
+                node.numberOfSkor--;
+                node.size--;
             } else {
                 if (node.left == null || node.right == null) {
                     Skor temp = null;
@@ -452,9 +449,9 @@ class MesinPermainan implements Comparable<MesinPermainan> {
     // }
     int greaterThanZ(Skor node, int z){
         if (node == null) return 0;
-        if (node.skor == z) return 1 + getCount(node.right);
+        // if (node.skor == z) return 1 + getSize(node.right);
         if (node.skor > z) {
-            return getCount(node) - getCount(node.left) + greaterThanZ(node.left, z);
+            return getSize(node) - getSize(node.left) + greaterThanZ(node.left, z);
         }
         else return greaterThanZ(node.right, z);
     }
