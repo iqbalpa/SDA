@@ -33,8 +33,8 @@ public class Lab6 {
         int batasAtasMaxHeap = -999;
         int batasBawahMinHeap = -999;
         if (N%2 == 0){
-            batasAtasMaxHeap = N/2 - 1;
-            batasBawahMinHeap = N/2 + 1;
+            batasAtasMaxHeap = N/2; // a
+            batasBawahMinHeap = N/2 + 1; // b
         } else {
             batasAtasMaxHeap = N/2;
             batasBawahMinHeap = N/2 + 1;
@@ -77,10 +77,26 @@ public class Lab6 {
             minheap.insert(newSaham);
             // System.out.println(">>>>> new tail: " + minheap.tail);
         }
+        if (getDiffSize() > 1){
+            Saham theSaham = minheap.removeMin();
+            maxheap.insert(theSaham);
+        } else if (getDiffSize() < -1){
+            Saham theSaham = maxheap.removeMax();
+            minheap.insert(theSaham);
+        }
         minSaham = minheap.getMin();
         out.println(minSaham.seri);
     }
     static void UBAH(int X, int C){}
+
+
+    static int getDiffSize(){
+        // jumlah 1/2 termahal - jumlah 1/2 termurah
+        // System.out.println(">>>>> minheap tail: " + minheap.tail);
+        // System.out.println(">>>>> maxheap tail: " + maxheap.tail);
+        // System.out.println(">>>>> different size: " + (minheap.tail - maxheap.tail));
+        return minheap.tail - maxheap.tail;
+    }
 
     // taken from https://codeforces.com/submissions/Petr
     static class InputReader {
@@ -170,6 +186,13 @@ class MinHeap {
         tail++;
         percolateUp(tail-1); //percolate up newest element
     }
+    Saham removeMin(){
+        Saham min = heap[0];
+        heap[0] = heap[tail-1];
+        tail--;
+        percolateDown(0);
+        return min;
+    }
 }
 // * 1/2 TERMURAH
 class MaxHeap {
@@ -217,5 +240,12 @@ class MaxHeap {
         heap[tail] = saham;
         tail++;
         percolateUp(tail-1); // percolate up newest element
+    }
+    Saham removeMax(){
+        Saham max = heap[0];
+        heap[0] = heap[tail-1];
+        tail--;
+        percolateDown(0);
+        return max;
     }
 }
