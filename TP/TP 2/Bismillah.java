@@ -6,6 +6,13 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.*;
 
+// Ideas by:
+// M Ferry Husnil A
+// Aushaaf F
+// Collab with:
+// Ibni Shaquille S
+// Fresty Tania S
+
 public class Bismillah {
     private static InputReader in;
     private static PrintWriter out;
@@ -30,6 +37,8 @@ public class Bismillah {
             int Mi = in.nextInt();
             for (int j=0; j<Mi; j++){
                 int Zj = in.nextInt();
+                // * menambahkan totalSkor di mesin
+                newMesin.root = newMesin.insertSkor(newMesin.root, Zj);
             }
         }
         funzone.posisiBudi = funzone.first;
@@ -44,26 +53,144 @@ public class Bismillah {
                 mainmain(Y);
             } else if (query.equals("GERAK")){
                 String arahGerak = in.next();
+                gerak(arahGerak);
             } else if (query.equals("HAPUS")){
                 int X = in.nextInt();
+                hapus(X);
             } else if (query.equals("LIHAT")){
                 int L = in.nextInt();
                 int H = in.nextInt();
+                lihat(L,H);
             } else if (query.equals("EVALUASI")){
-                
+                evaluasi();
             }
         }
         out.close();
     }
+    
     static void mainmain(int skorBudi) {
         MesinPermainan mesinBudi = funzone.posisiBudi;
+        // * menambahkan totalSkor di mesin
         mesinBudi.root = mesinBudi.insertSkor(mesinBudi.root, skorBudi);
         int greater = mesinBudi.greaterThanX(mesinBudi.root, skorBudi);
         int urutanSkorBudi = greater + 1;
         out.println(urutanSkorBudi);
     }
+    static void gerak(String arahGerak){
+        if (arahGerak.equals("KANAN")){
+            funzone.posisiBudi = funzone.posisiBudi.next;
+        } else if (arahGerak.equals("KIRI")){
+            funzone.posisiBudi = funzone.posisiBudi.prev;
+        }
+        out.println(funzone.posisiBudi.id);
+    }
+    static void lihat(int L, int H){
+        MesinPermainan mesinBudi = funzone.posisiBudi;
+        int smallerThanL = mesinBudi.smallerThanX(mesinBudi.root, L);
+        int greaterThanH = mesinBudi.greaterThanX(mesinBudi.root, H);
+        int banyakSkor = mesinBudi.getSize(mesinBudi.root) - smallerThanL - greaterThanH;
+        out.println(banyakSkor);
+    }
+    static void evaluasi(){
+        int idMesinBudi = funzone.posisiBudi.id;
+        mergeSort(myMesin, 0, myMesin.length-1);
+        funzone.first = null;
+        funzone.last = null;
 
+        int posisiBudi = idMesinBudi;
+        for (int i=1; i<=myMesin.length; i++){
+            funzone.addMesin(myMesin[i-1]);
+            if (myMesin[i-1].id == idMesinBudi){
+                posisiBudi = i;
+            }
+        }
+        out.println(posisiBudi);
+    }
     
+    static void hapus(int X) {
+        long sumOfSkor = 0;
+        MesinPermainan mesinBudi = funzone.posisiBudi;
+        // get banyak skor di mesin 
+        int banyakSkorDiMesin = mesinBudi.getSize(mesinBudi.root);
+        // mesin rusak
+        if (banyakSkorDiMesin <= X) {
+            for (int i=0; i<banyakSkorDiMesin; i++) {
+                Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
+                // * mengurangi totalSkor di mesin
+                sumOfSkor += maxSkor.key;
+                mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.key);
+            }
+            if (mesinBudi == funzone.last) {
+                funzone.posisiBudi = funzone.first;
+            } else if (funzone.first == funzone.last) {
+                // do nothing
+            } else {
+                funzone.posisiBudi = mesinBudi.next;
+                if (mesinBudi == funzone.first) funzone.first = mesinBudi.next;
+                // move mesin into the last position
+                mesinBudi.prev.next = mesinBudi.next;
+                mesinBudi.next.prev = mesinBudi.prev;
+                funzone.last.next = mesinBudi;
+                mesinBudi.prev = funzone.last;
+                funzone.last = mesinBudi;
+                funzone.last.next = funzone.first;
+                funzone.first.prev = funzone.last;
+            }
+        } 
+        // mesin tidak rusak (hapus beberapa skor)
+        else {
+            for (int i=0; i<X; i++){
+                Skor maxSkor = mesinBudi.findMax(mesinBudi.root);
+                sumOfSkor += maxSkor.key;
+                // * mengurangi totalSkor di mesin
+                mesinBudi.root = mesinBudi.deleteSkor(mesinBudi.root, maxSkor.key);
+            }
+        }
+        out.println(sumOfSkor);
+    }
+
+
+    // MERGE SORT: GEEKS FOR GEEKS
+    static void mergeSort(MesinPermainan[] arr, int l, int r) { 
+        if (l < r) { 
+            int m = (l+r)/2; 
+            mergeSort(arr, l, m); 
+            mergeSort(arr, m+1, r); 
+            merge(arr, l, m, r); 
+        } 
+    }
+    static void merge(MesinPermainan[] arr, int l, int m, int r) { 
+        int n1 = m - l + 1; 
+        int n2 = r - m; 
+        MesinPermainan L[] = new MesinPermainan [n1]; 
+        MesinPermainan R[] = new MesinPermainan [n2]; 
+        for (int i=0; i<n1; ++i) L[i] = arr[l + i]; 
+        for (int j=0; j<n2; ++j) R[j] = arr[m + 1+ j]; 
+        int i = 0, j = 0; 
+        int k = l; 
+        while (i < n1 && j < n2) { 
+            if (L[i].compareTo(R[j]) <= 0) { 
+                arr[k] = L[i]; 
+                i++; 
+            } else { 
+                arr[k] = R[j]; 
+                j++; 
+            } 
+            k++; 
+        } 
+        while (i < n1) { 
+            arr[k] = L[i]; 
+            i++; 
+            k++; 
+        } 
+        while (j < n2) { 
+            arr[k] = R[j]; 
+            j++; 
+            k++; 
+        } 
+    }
+    
+
     // referensi: template Lab SDA biasanya
     // untuk input output
     static class InputReader {
@@ -90,91 +217,28 @@ public class Bismillah {
 }
 
 
-
-// Class Skor sebagai Node AVL Tree
 class Skor {
-    int key;
-    int height;
-    int numOfSkor;
-    int numOfChild;
+    int key, height, size, numOfSkor;
     Skor left, right;
     Skor (int key) {
         this.key = key;
         this.height = 1;
+        this.size = 1;
         this.numOfSkor = 1;
-        this.numOfChild = 0;
-        this.left = null;
-        this.right = null;
     }
 }
 
 // class MesinPermainan sebagai Node LinkedList
 class MesinPermainan implements Comparable<MesinPermainan> {
     int id;
-    long totalSkor;
     Skor root;
     MesinPermainan next, prev;
     MesinPermainan (int id){
         this.id = id;
-        this.totalSkor = 0;
         this.root = null;
         this.next = null;
         this.prev = null;
     }
-    // INSERT
-    Skor insertSkor(Skor node, int newSkor){
-        if (node == null){
-            this.totalSkor += newSkor;
-            Skor theSkor = new Skor(newSkor);
-            return theSkor;
-        }
-        if (node.key == newSkor){
-            node.numOfSkor++;
-            this.totalSkor += newSkor;
-            return node;
-        } else if (newSkor < node.key){
-            node.numOfChild++;
-            node.left = insertSkor(node.left, newSkor);
-        } else {
-            node.numOfChild++;
-            node.right = insertSkor(node.right, newSkor);
-        }
-        node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
-        int balance = getBalance(node);
-        // LL
-        if (balance > 1 && newSkor < node.left.key){
-            return rightRotate(node);
-        }
-        // RR
-        if (balance < -1 && newSkor > node.right.key){
-            return leftRotate(node);
-        }
-        // LR
-        if (balance > 1 && newSkor > node.left.key){
-            node.left = leftRotate(node.left);
-            return rightRotate(node);
-        }
-        // RL
-        if (balance < -1 && newSkor < node.right.key){
-            node.right = rightRotate(node.right);
-            return leftRotate(node);
-        }
-        return node;
-    }
-
-    // GREATER THAN X
-    int greaterThanX(Skor node, int X){
-        if (node == null) return 0;
-        if (node.key > X) return getSize(node) - getSize(node.left) + greaterThanX(node.left, X);
-        else return greaterThanX(node.right, X);
-    }
-    // SMALLER THAN X
-    int smallerThanX(Skor node, int X){
-        if (node == null) return 0;
-        if (node.key < X) return getSize(node) - getSize(node.right) + smallerThanX(node.right, X);
-        else return smallerThanX(node.left, X);
-    }
-
     // GETTER
     int getHeight(Skor node){
         if (node == null) return 0;
@@ -184,65 +248,157 @@ class MesinPermainan implements Comparable<MesinPermainan> {
         if (node == null) return 0;
         return getHeight(node.left) - getHeight(node.right);
     }
-    int getNumOfChild(Skor node){
-        if (node == null) return 0;
-        return node.numOfChild;
-    }
-    int getNumOfSkor(Skor node){
-        if (node == null) return 0;
-        return node.numOfSkor;
-    }
     int getSize(Skor node){
         if (node == null) return 0;
-        return getNumOfChild(node) + getNumOfSkor(node);
+        return node.size;
     }
+    Skor rightRotate(Skor node){
+        Skor left = node.left;
+        Skor right = left.right;
+        left.right = node;
+        node.left = right;
+        // update height & size
+        node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+        node.size = node.numOfSkor + getSize(node.left) + getSize(node.right);
+        left.size = left.numOfSkor + getSize(left.left) + getSize(left.right);
+        left.height = Math.max(getHeight(left.left), getHeight(left.right)) + 1;
 
-    // ROTATE
-    Skor rightRotate(Skor y) {
-        Skor x = y.left;
-        Skor z = x.right;
-        // before rotation
-        x.numOfChild = getNumOfChild(z) + getNumOfSkor(z) + getNumOfChild(x.left) + getNumOfSkor(x.left);
-        y.numOfChild = getNumOfChild(x) + getNumOfSkor(x) + getNumOfChild(y.right) + getNumOfSkor(y.right);
-        // Perform rotation
-        x.right = y;
-        y.left = z;
-        // after rotation
-        y.numOfChild = getNumOfChild(y.right) + getNumOfSkor(y.right) + getNumOfChild(z) + getNumOfSkor(z);
-        y.numOfChild = getNumOfChild(y) - (getNumOfChild(x) + getNumOfSkor(x)) + (getNumOfChild(z) + getNumOfSkor(z));
-        x.numOfChild = getNumOfChild(x.left) + getNumOfSkor(x.left) + getNumOfChild(y) + getNumOfSkor(y);
-        x.numOfChild = getNumOfChild(x) - (getNumOfChild(z) + getNumOfSkor(z)) + (getNumOfChild(y) + getNumOfSkor(y));
-        // Update heights
-        y.height = max(height(y.left), height(y.right)) + 1;
-        x.height = max(height(x.left), height(x.right)) + 1;
-        // Return new root
-        return x;
+        return left;
     }
-    Skor leftRotate(Skor x){
-        Skor y = x.right;
-        Skor z = y.left;
-        // before rotation
-        y.numOfChild = getNumOfChild(z) + getNumOfSkor(z) + getNumOfChild(y.right) + getNumOfSkor(y.right);
-        x.numOfChild = getNumOfChild(x.left) + getNumOfSkor(x.left) + getNumOfChild(y) + getNumOfSkor(y);
-        // Perform rotation
-        y.left = x;
-        x.right = z;
-        // after rotation
-        x.numOfChild = getNumOfChild(x.left) + getNumOfSkor(x.left) + getNumOfChild(z) + getNumOfSkor(z);
-        x.numOfChild = getNumOfChild(x) - (getNumOfChild(y) + getNumOfSkor(y)) + (getNumOfChild(z) + getNumOfSkor(z));
-        y.numOfChild = getNumOfChild(x) + getNumOfSkor(x) + getNumOfChild(y.right) + getNumOfSkor(y.right);
-        y.numOfChild = getNumOfChild(y) - (getNumOfChild(z) + getNumOfSkor(z)) + (getNumOfChild(x) + getNumOfSkor(x));
-        // Update heights
-        x.height = max(height(x.left), height(x.right)) + 1;
-        y.height = max(height(y.left), height(y.right)) + 1;
-        // Return new root
-        return y;
-    }
+    Skor leftRotate(Skor node){
+        Skor right = node.right;
+        Skor left = right.left;
+        right.left = node;
+        node.right = left;
+        // update height & size
+        node.height = Math.max(getHeight(node.left), getHeight(node.right)) + 1;
+        node.size = node.numOfSkor + getSize(node.left) + getSize(node.right);
+        right.size = right.numOfSkor + getSize(right.left) + getSize(right.right);
+        right.height = Math.max(getHeight(right.left), getHeight(right.right)) + 1;
 
+        return right;
+    }
+    // insert new score
+    Skor insertSkor(Skor node, int key) {
+        if (node == null) {
+            return new Skor(key);
+        }
+        if (key < node.key){
+            node.left = insertSkor(node.left, key);
+        } else if (key > node.key) {
+            node.right = insertSkor(node.right, key);
+        } else {
+            // handle duplicate score
+            node.numOfSkor++;
+            node.size++;
+            return node;
+        }
+        // update height & size
+        node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+        node.size = node.numOfSkor + getSize(node.left) + getSize(node.right);
+        // balancing
+        int balance = getBalance(node);
+        if (balance > 1 && key < node.left.key) {
+            return rightRotate(node);
+        }
+        if (balance < -1 && key > node.right.key) {
+            return leftRotate(node);
+        }   
+        if (balance > 1 && key > node.left.key) {
+            node.left = leftRotate(node.left);
+            return rightRotate(node);
+        }
+        if (balance < -1 && key < node.right.key) {
+            node.right = rightRotate(node.right);
+            return leftRotate(node);
+        }
+        return node;
+    } 
+    // get number of elements that greater than x (exclusive)
+    int greaterThanX(Skor node, int x){
+        if (node == null) return 0;
+        if (node.key > x) return getSize(node) - getSize(node.left) + greaterThanX(node.left, x);
+        else return greaterThanX(node.right, x);
+    }
+    // get number of elements that less than x (exclusive)
+    int smallerThanX(Skor node, int x){
+        if (node == null) return 0;
+        if (node.key < x) return getSize(node) - getSize(node.right) + smallerThanX(node.right, x);
+        else return smallerThanX(node.left, x);
+    }
+    // get the max score
+    Skor findMax(Skor node){
+        if (node.right == null) return node;
+        return findMax(node.right);
+    }
+    // get the min score in the subtree (successor)
+    Skor minValueNode(Skor node) {
+        Skor current = node;
+        while (current.left != null) {
+            current = current.left;
+        }
+        return current;
+    }
+    // delete the node with the given key
+    Skor deleteSkor(Skor node, int key){
+        if (node == null) return node;
+        if (key < node.key){
+            node.left = deleteSkor(node.left, key);
+        } else if (key > node.key) {
+            node.right = deleteSkor(node.right, key);
+        } else {
+            // handle duplicate score
+            if (node.numOfSkor > 1) {
+                node.numOfSkor--;
+                node.size--;
+            } else {
+                if ((node.left == null) || (node.right == null)){
+                    Skor temp = null;
+                    if (temp == node.left) temp = node.left;
+                    else temp = node.left;
+
+                    if (temp == null) {
+                        temp = node;
+                        node = null;
+                    } else {
+                        node = temp;
+                    }
+                } else {
+                    Skor temp = minValueNode(node);
+                    node.key = temp.key;
+                    node.right = deleteSkor(node.right, temp.key);
+                }
+            }
+        }
+        if (node == null) return node;
+        // update height & size
+        node.height = 1 + Math.max(getHeight(node.left), getHeight(node.right));
+        node.size = node.numOfSkor + getSize(node.left) + getSize(node.right);
+        // balancing
+        int balance = getBalance(node);
+        if (balance > 1){
+            if (getBalance(node.left) >= 0){
+                return rightRotate(node);
+            } else {
+                node.left = leftRotate(node.left);
+                return rightRotate(node);
+            }
+        }
+        if (balance < -1){
+            if (getBalance(node.right) <= 0){
+                return leftRotate(node);
+            } else {
+                node.right = rightRotate(node.right);
+                return leftRotate(node);
+            }
+        }
+        return node;
+    }
+    // override compareTo
     public int compareTo(MesinPermainan other) {
-        if (this.totalSkor > other.totalSkor) return -1;
-        else if (this.totalSkor < other.totalSkor) return 1;
-        else (this.id - other.id);
+        if (this.getSize(this.root) > other.getSize(other.root)) return -1;
+        else if (this.getSize(this.root) < other.getSize(other.root)) return 1;
+        else return (this.id - other.id);
     }
 }
 
@@ -254,6 +410,7 @@ class Funzone {
         this.last = null;
         this.posisiBudi = null;
     }
+    // add new mesin
     void addMesin(MesinPermainan newMesin) {
         if (first == null) {
             this.first = newMesin;
