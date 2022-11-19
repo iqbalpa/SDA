@@ -7,10 +7,18 @@ import java.io.PrintWriter;
 import java.util.StringTokenizer;
 import java.util.*;
 
+// Ideas by:
+// Fresty Tania S
+// Diah Afia S
+// M Ferry Husnil A
+// Collab with:
+// Ibni Shaquille S
+
 public class Lab6 {
     private static InputReader in;
     static PrintWriter out;
     static Saham[] daftarSaham = new Saham[400012];
+    static Saham[] sahamById = new Saham[400012];
     static MaxHeap maxheap;
     static MinHeap minheap;
     static int N;
@@ -27,6 +35,7 @@ public class Lab6 {
             int Ci = in.nextInt();
             Saham newSaham = new Saham(i, Ci);
             daftarSaham[i] = newSaham;
+            sahamById[i] = newSaham;
         }
 
         // sort saham
@@ -43,6 +52,9 @@ public class Lab6 {
         for (int i=batasBawahMinHeap; i<=N; i++) {
             minheap.insert(daftarSaham[i]);
         }
+
+        // printArray();
+        // printAll();
 
         // banyak query
         int Q = in.nextInt();
@@ -64,62 +76,67 @@ public class Lab6 {
         N++;
         Saham newSaham = new Saham(N, C);
         daftarSaham[N] = newSaham;
+        sahamById[N] = newSaham;
         // O(1)
         Saham minSaham = minheap.getMin();
-        // O(logN)
-        if (newSaham.compareTo(minSaham) < 0){
+        // O(logN) 
+        if (newSaham.harga < minSaham.harga){
             maxheap.insert(newSaham);
-        } else {
+        } else if (newSaham.harga > minSaham.harga) {
             minheap.insert(newSaham);
+        } else {
+            if (newSaham.seri < minSaham.seri){
+                maxheap.insert(newSaham);
+            } else {
+                minheap.insert(newSaham);
+            }
         }
         // O(2logN)
         if (getDiffSize() > 1){
             Saham theSaham = minheap.removeMin();
             maxheap.insert(theSaham);
-        } else if (getDiffSize() < -1){
+        } 
+        if (getDiffSize() <= -1){
             Saham theSaham = maxheap.removeMax();
             minheap.insert(theSaham);
         }
+        // printAll();
         // O(1)
         minSaham = minheap.getMin();
         out.println(minSaham.seri);
     }
     static void UBAH(int X, int C){
-        // Saham theSaham = daftarSaham[X]; //! masi salah soalnya X itu seri
-        Saham theSaham = null;
-        for (int i=1; i<=N; i++){
-            if (daftarSaham[i].seri == X){
-                theSaham = daftarSaham[i];
-                break;
-            }
+        Saham theSaham = sahamById[X];
+        if (theSaham.isInMinheap){
+            minheap.remove(theSaham.posisiMinheap);
+        } else if (theSaham.isInMaxheap){
+            maxheap.remove(theSaham.posisiMaxheap);
         }
-        // find posisi remove
-        // O(N)
-        if (theSaham.compareTo(minheap.getMin()) < 0){
-            maxheap.remove(X);
-        } else {
-            minheap.remove(X);
-        }
-        // update harga
         theSaham.harga = C;
         // O(1)
         Saham minSaham = minheap.getMin();
-        // add harga
         // O(logN)
-        if (theSaham.compareTo(minSaham) < 0){
+        if (theSaham.harga < minSaham.harga){
             maxheap.insert(theSaham);
-        } else {
+        } else if (theSaham.harga > minSaham.harga) {
             minheap.insert(theSaham);
+        } else {
+            if (theSaham.seri < minSaham.seri){
+                maxheap.insert(theSaham);
+            } else {
+                minheap.insert(theSaham);
+            }
         }
-        // menyamakan ukuran minheap dan maxheap
         // O(2logN)
         if (getDiffSize() > 1){
-            Saham saham = minheap.removeMin();
-            maxheap.insert(saham);
-        } else if (getDiffSize() < -1){
-            Saham saham = maxheap.removeMax();
-            minheap.insert(saham);
+            Saham min = minheap.removeMin();
+            maxheap.insert(min);
         }
+        if (getDiffSize() <= -1){
+            Saham max = maxheap.removeMax();
+            minheap.insert(max);
+        }
+        printAll();
         // O(1)
         minSaham = minheap.getMin();
         out.println(minSaham.seri);
@@ -127,6 +144,20 @@ public class Lab6 {
 
     static int getDiffSize(){
         return minheap.tail - maxheap.tail;
+    }
+
+    static void printAll(){
+        System.out.println("=============================");
+        maxheap.printMaxheap();
+        minheap.printMinheap();
+        System.out.println("=============================");
+    }
+    static void printArray(){
+        System.out.print(">>>>>>>>>>>>>>> order yg bener: ");
+        for (int i=1; i<=N; i++){
+            System.out.print(daftarSaham[i].harga + " ");
+        }
+        System.out.println();
     }
 
     // taken from https://codeforces.com/submissions/Petr
@@ -159,9 +190,15 @@ public class Lab6 {
 
 class Saham implements Comparable<Saham> {
     int seri, harga;
+    boolean isInMinheap, isInMaxheap;
+    int posisiMinheap, posisiMaxheap;
     Saham (int seri, int harga){
         this.seri = seri;
         this.harga = harga;
+        this.posisiMinheap = -999;
+        this.posisiMaxheap = -999;
+        this.isInMinheap = false;
+        this.isInMaxheap = false;
     }
     public int compareTo(Saham o){
         if (this.harga < o.harga) return -1;
@@ -195,6 +232,9 @@ class MinHeap {
         Saham temp = heap[i];
         heap[i] = heap[j];
         heap[j] = temp;
+        // update posisi
+        heap[i].posisiMinheap = i;
+        heap[j].posisiMinheap = j;
     }
     void percolateUp(int i){
         if (i==0) return;
@@ -214,6 +254,9 @@ class MinHeap {
     }
     void insert(Saham saham){
         heap[tail] = saham;
+        saham.posisiMinheap = tail;
+        saham.isInMinheap = true;
+        saham.isInMaxheap = false;
         tail++;
         percolateUp(tail-1); //percolate up newest element
     }
@@ -226,14 +269,28 @@ class MinHeap {
         }
         return min;
     }
-    void remove(int seri){
-        int i = 0;
-        while (i<tail && heap[i].seri != seri) i++;
-        if (i==tail) return;
+    Saham remove(int i){
+        Saham saham = heap[i];
         heap[i] = heap[tail-1];
         tail--;
         percolateDown(i);
+        return saham;
     }
+    void printMinheap(){
+        System.out.print("minheap: ");
+        for (int i=0; i<tail; i++){
+            System.out.print(heap[i].harga + " ");
+        }
+        System.out.println();
+        System.out.println(">>> size: " + tail);
+        // find min in minheap.heap
+        int min = Integer.MAX_VALUE;
+        for (int i=0; i<tail; i++){
+            if (heap[i].harga < min) min = heap[i].harga;
+        }
+        System.out.println("<<< min: " + min + " T " + heap[0].harga);
+    }
+
 }
 // * 1/2 TERMURAH
 class MaxHeap {
@@ -260,6 +317,9 @@ class MaxHeap {
         Saham temp = heap[i];
         heap[i] = heap[j];
         heap[j] = temp;
+        // update posisi
+        heap[i].posisiMaxheap = i;
+        heap[j].posisiMaxheap = j;
     }
     void percolateUp(int i){
         if (i==0) return;
@@ -279,6 +339,9 @@ class MaxHeap {
     }
     void insert(Saham saham){
         heap[tail] = saham;
+        saham.posisiMaxheap = tail;
+        saham.isInMaxheap = true;
+        saham.isInMinheap = false;
         tail++;
         percolateUp(tail-1); // percolate up newest element
     }
@@ -291,12 +354,27 @@ class MaxHeap {
         }
         return max;
     }
-    void remove(int seri){
-        int i = 0;
-        while (i<tail && heap[i].seri != seri) i++;
-        if (i==tail) return;
+    Saham remove(int i){
+        Saham saham = heap[i];
         heap[i] = heap[tail-1];
         tail--;
         percolateDown(i);
+        return saham;
+    }
+
+    
+    void printMaxheap(){
+        System.out.print("maxheap: ");
+        for (int i=0; i<tail; i++){
+            System.out.print(heap[i].harga + " ");
+        }
+        System.out.println();
+        System.out.println(">>> size: " + tail);
+        // find max in maxheap.heap
+        int max = -999;
+        for (int i=0; i<tail; i++){
+            if (heap[i].harga > max) max = heap[i].harga;
+        }
+        System.out.println("<<< max: " + max + " T " + heap[0].harga);
     }
 }
