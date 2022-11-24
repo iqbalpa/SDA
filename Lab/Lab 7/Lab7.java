@@ -1,10 +1,10 @@
 import java.io.*;
 import java.util.*;
-import java.util.StringTokenizer;
 
 public class Lab7 {
     private static InputReader in;
     private static PrintWriter out;
+    static Graph graf = new Graph();
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -16,25 +16,47 @@ public class Lab7 {
 
         for (int i = 1; i <= N; i++) {
             // TODO: Inisialisasi setiap benteng
+            Vertex v = graf.getVertex(i);
         }
 
         for (int i = 0; i < M; i++) {
             int F = in.nextInt();
             // TODO: Tandai benteng F sebagai benteng diserang
+            Vertex v = graf.getVertex(F);
+            v.isAttacked = true;
         }
 
         int E = in.nextInt();
         for (int i = 0; i < E; i++) {
             int A = in.nextInt(), B = in.nextInt(), W = in.nextInt();
             // TODO: Inisialisasi jalan berarah dari benteng A ke B dengan W musuh
+            graf.addEdge(A, B, W);
         }
 
         int Q = in.nextInt();
         while (Q-- > 0) {
             int S = in.nextInt(), K = in.nextInt();
             // TODO: Implementasi query
+            if (K == 0) out.println("NO");
+            else {
+                Vertex v = graf.getVertex(S);
+                if (v.isAttacked) {
+                    if (K > 0) out.println("YES");
+                } else {
+                    boolean flag = false;
+                    graf.dijksrta(S);
+                    for (int i=1; i<=N; i++){
+                        Vertex v2 = graf.getVertex(i);
+                        if (v2.isAttacked && v2.dist < K) {
+                            out.println("YES");
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) out.println("NO");
+                }
+            }
         }
-
         out.close();
     }
 
@@ -88,16 +110,24 @@ class Vertex {
     List<Edge> adjList;
     int dist;
     int scratch;
+    Map<Integer, Path> vMap;
     Vertex(int id) {
         this.id = id;
         this.isAttacked = false;
         this.adjList = new LinkedList<>();
+        vMap = new HashMap<>();
         reset();
     }
     void reset(){
         this.prev = null;
         this.dist = Graph.INFINITY;
         this.scratch = 0;
+    }
+    void addPath(Path p) {
+        vMap.put(p.to.id, p);
+    }
+    Path getPath(Vertex to) {
+        return vMap.get(to.id);
     }
 }
 
@@ -120,6 +150,9 @@ class Path implements Comparable<Path> {
 class Graph{
     static final Integer INFINITY = Integer.MAX_VALUE;
     Map<Integer, Vertex> vertexMap;
+    Graph(){
+        vertexMap = new HashMap<>();
+    }
 
     Vertex getVertex(int id) {
         Vertex v = vertexMap.get(id);
@@ -176,6 +209,12 @@ class Graph{
                     w.dist = v.dist + weight;
                     w.prev = v;
                     pq.add(new Path(w, w.dist));
+                    // save the path to the vertex
+                    // if (v.getPath(w) != null){
+                    //     v.getPath(w).numOfEnemy = w.dist;
+                    // } else {
+                    //     v.addPath(new Path(w, w.dist));
+                    // }
                 }
             }
         }
