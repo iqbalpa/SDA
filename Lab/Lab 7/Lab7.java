@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 import java.util.StringTokenizer;
 
 public class Lab7 {
@@ -66,5 +67,117 @@ public class Lab7 {
             return Integer.parseInt(next());
         }
 
+    }
+}
+
+// untuk Path
+class Edge {
+    Vertex to;
+    int numOfEnemy;
+    Edge(Vertex to, int numOfEnemy) {
+        this.to = to;
+        this.numOfEnemy = numOfEnemy;
+    }
+}
+
+// Untuk Benteng
+class Vertex {
+    int id;
+    Vertex prev;
+    boolean isAttacked;
+    List<Edge> adjList;
+    int dist;
+    int scratch;
+    Vertex(int id) {
+        this.id = id;
+        this.isAttacked = false;
+        this.adjList = new LinkedList<>();
+        reset();
+    }
+    void reset(){
+        this.prev = null;
+        this.dist = Graph.INFINITY;
+        this.scratch = 0;
+    }
+}
+
+// untuk Path
+class Path implements Comparable<Path> {
+    Vertex to;
+    int numOfEnemy;
+    Path(Vertex to, int numOfEnemy) {
+        this.to = to;
+        this.numOfEnemy = numOfEnemy;
+    }
+
+    @Override
+    public int compareTo(Path o) {
+        return this.numOfEnemy - o.numOfEnemy;
+    }
+}
+
+// untuk Graph
+class Graph{
+    static final Integer INFINITY = Integer.MAX_VALUE;
+    Map<Integer, Vertex> vertexMap;
+
+    Vertex getVertex(int id) {
+        Vertex v = vertexMap.get(id);
+        if (v == null) {
+            v = new Vertex(id);
+            vertexMap.put(id, v);
+        }
+        return v;
+    }
+    void printPath(Vertex destination) {
+        if (destination.prev != null) {
+            printPath(destination.prev);
+            System.out.print(" <= ");
+        }
+        System.out.print(destination.id);
+    }
+    void addEdge(int from, int to, int numOfEnemy) {
+        Vertex v = getVertex(from);
+        Vertex w = getVertex(to);
+        v.adjList.add(new Edge(w, numOfEnemy));
+    }
+    void clearAll(){
+        for (Vertex v : vertexMap.values()) {
+            v.reset();
+        }
+    }
+
+    // find shortest path to the isAttacked vertex
+    void dijksrta(int id) {
+        PriorityQueue<Path> pq = new PriorityQueue<>();
+        
+        Vertex source = getVertex(id);
+        if (source == null) {
+            System.out.println("Tidak ada benteng dengan id " + id);
+            return;
+        }
+        clearAll();
+        pq.add(new Path(source, 0));
+        source.dist = 0;
+
+        int visited = 0;
+        while (!pq.isEmpty() && visited < vertexMap.size()) {
+            Path path = pq.remove();
+            Vertex v = path.to;
+            if (v.scratch != 0) {
+                continue;
+            }
+            v.scratch = 1;
+            visited++;
+            for (Edge e : v.adjList) {
+                Vertex w = e.to;
+                int weight = e.numOfEnemy;
+                if (v.dist + weight < w.dist) {
+                    w.dist = v.dist + weight;
+                    w.prev = v;
+                    pq.add(new Path(w, w.dist));
+                }
+            }
+        }
     }
 }
