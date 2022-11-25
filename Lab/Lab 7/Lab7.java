@@ -8,7 +8,7 @@ public class Lab7 {
     private static InputReader in;
     private static PrintWriter out;
     static List<Integer> attackedBenteng = new ArrayList<>();
-    static Integer[] distances;
+    static long[] distances;
     static ArrayList<ArrayList<AdjListNode>> graf = new ArrayList<>();
 
     public static void main(String[] args) {
@@ -18,12 +18,12 @@ public class Lab7 {
         out = new PrintWriter(outputStream);
 
         int N = in.nextInt(), M = in.nextInt();
-        distances = new Integer[N];
+        distances = new long[N];
 
         for (int i = 0; i < N; i++) {
             // TODO: Inisialisasi setiap benteng
             graf.add(new ArrayList<>());
-            distances[i] = Integer.MAX_VALUE;
+            distances[i] = Long.MAX_VALUE;
         }
 
         for (int i = 0; i < M; i++) {
@@ -39,28 +39,14 @@ public class Lab7 {
             graf.get(B-1).add(new AdjListNode(A-1, W));
         }
 
-        // looping over attackedBenteng
-        // out.println("================");
         for (int i = 0; i < attackedBenteng.size(); i++) {
-            int[] temp = dijkstra(N, graf, attackedBenteng.get(i));
+            long[] temp = dijkstra(N, graf, attackedBenteng.get(i));
             for (int j = 0; j < temp.length; j++) {
                 if (distances[j] > temp[j]) {
                     distances[j] = temp[j];
                 }
-                // out.print(temp[j] + " ");
             }
-            // out.println();
-            // out.println("================");
         }
-
-        // // DEBUGGING
-        // out.println("================");
-        // out.println("sortest path to attacked benteng: ");
-        // for (int i = 0; i < distances.length; i++) {
-        //     out.print(distances[i] + " ");
-        // }
-        // out.println();
-        // out.println("================");
 
         int Q = in.nextInt();
         while (Q-- > 0) {
@@ -110,24 +96,25 @@ public class Lab7 {
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
     static class AdjListNode {
-        int vertex, weight;
-        AdjListNode(int v, int w){
+        int vertex;
+        long weight;
+        AdjListNode(int v, long w){
             this.vertex = v;
             this.weight = w;
         }
         int getVertex(){
             return this.vertex;
         }
-        int getWeight(){
+        long getWeight(){
             return this.weight;
         }
     }
-    public static int[] dijkstra(int V, ArrayList<ArrayList<AdjListNode>> graph, int src){
-        int[] distance = new int[V];
-        for (int i=0; i<V; i++) distance[i] = Integer.MAX_VALUE;
-        distance[src] = 0;
+    public static long[] dijkstra(int V, ArrayList<ArrayList<AdjListNode>> graph, int src){
+        long[] distance = new long[V];
+        for (int i=0; i<V; i++) distance[i] = Long.MAX_VALUE;
+        distance[src] = (long)0;
 
-        PriorityQueue<AdjListNode> pq = new PriorityQueue<>((v1,v2) -> v1.getWeight() - v2.getWeight());
+        PriorityQueue<AdjListNode> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getWeight() - v2.getWeight()));
         pq.add(new AdjListNode(src, 0));
 
         while (pq.size() > 0){
