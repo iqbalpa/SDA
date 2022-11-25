@@ -5,6 +5,9 @@ public class Lab7 {
     private static InputReader in;
     private static PrintWriter out;
     static Graph graf = new Graph();
+    static List<Integer> attackedBenteng = new ArrayList<>();
+    static List<Integer> unattackedBenteng = new ArrayList<>();
+    static Integer[] distances;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -13,10 +16,12 @@ public class Lab7 {
         out = new PrintWriter(outputStream);
 
         int N = in.nextInt(), M = in.nextInt();
+        distances = new Integer[N];
 
         for (int i = 1; i <= N; i++) {
             // TODO: Inisialisasi setiap benteng
             Vertex v = graf.getVertex(i);
+            distances[i-1] = Integer.MAX_VALUE;
         }
 
         for (int i = 0; i < M; i++) {
@@ -24,6 +29,7 @@ public class Lab7 {
             // TODO: Tandai benteng F sebagai benteng diserang
             Vertex v = graf.getVertex(F);
             v.isAttacked = true;
+            attackedBenteng.add(F);
         }
 
         int E = in.nextInt();
@@ -33,6 +39,17 @@ public class Lab7 {
             graf.addEdge(A, B, W);
         }
 
+        // panggil dijkstra untuk node yg sedang diserang
+        for (int i = 0; i < attackedBenteng.size(); i++) {
+            graf.dijkstra(attackedBenteng.get(i));
+        }
+
+        out.println("shortest path to attacked benteng: ");
+        for (int i = 0; i < N; i++) {
+            out.print(distances[i] + " ");
+        }
+        out.println();
+
         int Q = in.nextInt();
         while (Q-- > 0) {
             int S = in.nextInt(), K = in.nextInt();
@@ -40,20 +57,13 @@ public class Lab7 {
             if (K == 0) out.println("NO");
             else {
                 Vertex v = graf.getVertex(S);
-                if (v.isAttacked) {
-                    if (K > 0) out.println("YES");
-                } else {
-                    boolean flag = false;
-                    graf.dijksrta(S);
-                    for (int i=1; i<=N; i++){
-                        Vertex v2 = graf.getVertex(i);
-                        if (v2.isAttacked && v2.dist < K) {
-                            out.println("YES");
-                            flag = true;
-                            break;
-                        }
+                if (v.isAttacked) out.println("YES");
+                else {
+                    if (distances[S-1] < K) {
+                        out.println("YES");
+                    } else {
+                        out.println("NO");
                     }
-                    if (!flag) out.println("NO");
                 }
             }
         }
@@ -110,12 +120,10 @@ class Vertex {
     List<Edge> adjList;
     int dist;
     int scratch;
-    Map<Integer, Path> vMap;
     Vertex(int id) {
         this.id = id;
         this.isAttacked = false;
         this.adjList = new LinkedList<>();
-        vMap = new HashMap<>();
         reset();
     }
     void reset(){
@@ -123,26 +131,20 @@ class Vertex {
         this.dist = Graph.INFINITY;
         this.scratch = 0;
     }
-    void addPath(Path p) {
-        vMap.put(p.to.id, p);
-    }
-    Path getPath(Vertex to) {
-        return vMap.get(to.id);
-    }
 }
 
 // untuk Path
 class Path implements Comparable<Path> {
     Vertex to;
-    int numOfEnemy;
-    Path(Vertex to, int numOfEnemy) {
+    long numOfEnemy;
+    Path(Vertex to, long numOfEnemy) {
         this.to = to;
         this.numOfEnemy = numOfEnemy;
     }
 
     @Override
     public int compareTo(Path o) {
-        return this.numOfEnemy - o.numOfEnemy;
+        return Long.compare(this.numOfEnemy, o.numOfEnemy);
     }
 }
 
@@ -181,7 +183,7 @@ class Graph{
     }
 
     // find shortest path to the isAttacked vertex
-    void dijksrta(int id) {
+    void dijkstra(int id) {
         PriorityQueue<Path> pq = new PriorityQueue<>();
         
         Vertex source = getVertex(id);
@@ -209,12 +211,12 @@ class Graph{
                     w.dist = v.dist + weight;
                     w.prev = v;
                     pq.add(new Path(w, w.dist));
-                    // save the path to the vertex
-                    // if (v.getPath(w) != null){
-                    //     v.getPath(w).numOfEnemy = w.dist;
-                    // } else {
-                    //     v.addPath(new Path(w, w.dist));
-                    // }
+                    // save the shortest path into array distances 
+                    if (w.isAttacked){
+                        if (Lab7.distances[w.id-1] > w.dist){
+                            Lab7.distances[w.id-1] = w.dist;
+                        }
+                    }
                 }
             }
         }
