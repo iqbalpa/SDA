@@ -3,6 +3,7 @@ import java.util.*;
 
 // IDEAS BY:
 // 1. Fresty Tania S
+// 2. Monica Oktaviona
 
 public class Lab7 {
     private static InputReader in;
@@ -39,6 +40,9 @@ public class Lab7 {
             graf.get(B-1).add(new AdjListNode(A-1, W));
         }
 
+        // mencari jarak terdekat dari suatu benteng ke benteng yang sedang diserang,
+        // dengan cara memanggil method dijkstra untuk benteng yang sedang diserang untuk
+        // mengetahui shortest path
         for (int i = 0; i < attackedBenteng.size(); i++) {
             long[] temp = dijkstra(N, graf, attackedBenteng.get(i));
             for (int j = 0; j < temp.length; j++) {
@@ -52,9 +56,12 @@ public class Lab7 {
         while (Q-- > 0) {
             int S = in.nextInt(), K = in.nextInt();
             // TODO: Implementasi query
+            // jika berhasil menyelamatkan
             if (distances[S-1] < K){
                 out.println("YES");
-            } else {
+            }
+            // jika gagal
+            else {
                 out.println("NO");
             }
         }
