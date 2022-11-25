@@ -5,6 +5,7 @@ public class Lab7 {
     private static InputReader in;
     private static PrintWriter out;
     static Graph graf = new Graph();
+    static int N;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -12,7 +13,8 @@ public class Lab7 {
         OutputStream outputStream = System.out;
         out = new PrintWriter(outputStream);
 
-        int N = in.nextInt(), M = in.nextInt();
+        N = in.nextInt();
+        int M = in.nextInt();
 
         for (int i = 1; i <= N; i++) {
             // TODO: Inisialisasi setiap benteng
@@ -33,39 +35,13 @@ public class Lab7 {
             graf.addEdge(A, B, W);
         }
 
-        graf.dijksrta(1);
         int Q = in.nextInt();
         while (Q-- > 0) {
             int S = in.nextInt(), K = in.nextInt();
             // TODO: Implementasi query
             if (K == 0) out.println("NO");
             else {
-                boolean willSave = false;
-                Vertex v = graf.getVertex(S);
-                for (Path p: v.vMap.values()){
-                    if (K > p.numOfEnemy) {
-                        out.println("YES");
-                        willSave = true;
-                        break;
-                    }
-                }
-                if (!willSave) out.println("NO");
-                // Vertex v = graf.getVertex(S);
-                // if (v.isAttacked) {
-                //     if (K > 0) out.println("YES");
-                // } else {
-                //     boolean flag = false;
-                //     graf.dijksrta(S);
-                //     for (int i=1; i<=N; i++){
-                //         Vertex v2 = graf.getVertex(i);
-                //         if (v2.isAttacked && v2.dist < K) {
-                //             out.println("YES");
-                //             flag = true;
-                //             break;
-                //         }
-                //     }
-                //     if (!flag) out.println("NO");
-                // }
+                
             }
             // * Biar ga TLE adalah dengan cara jalanin method dijkstra 1x
             // * untuk setiap vertex kita harus save path ke vertex lain
@@ -120,19 +96,22 @@ class Edge {
 }
 
 // Untuk Benteng
-class Vertex {
+class Vertex implements Comparable<Vertex> {
     int id;
     Vertex prev;
     boolean isAttacked;
     List<Edge> adjList;
     int dist;
     int scratch;
-    Map<Integer, Path> vMap;
+    PriorityQueue<Vertex> pq;
+    Integer[] distances;
+
     Vertex(int id) {
         this.id = id;
         this.isAttacked = false;
         this.adjList = new LinkedList<>();
-        vMap = new HashMap<>();
+        this.distances = new Integer[Lab7.N];
+        this.pq = new PriorityQueue<>();
         reset();
     }
     void reset(){
@@ -140,11 +119,14 @@ class Vertex {
         this.dist = Graph.INFINITY;
         this.scratch = 0;
     }
-    void addPath(Path p) {
-        vMap.put(p.to.id, p);
+    Vertex getFirst(){
+        return pq.peek();
     }
-    Path getPath(Vertex to) {
-        return vMap.get(to.id);
+    @Override
+    public int compareTo(Vertex other) {
+        if (this.isAttacked) return -1;
+        else if (other.isAttacked) return -1;
+        else return Integer.compare(this.dist, other.dist);
     }
 }
 
@@ -196,11 +178,6 @@ class Graph{
             v.reset();
         }
     }
-    int getDistance(int from, int to) {
-        Vertex v = getVertex(from);
-        Vertex w = getVertex(to);
-        return v.getPath(w).numOfEnemy;
-    }
 
     // find shortest path to the isAttacked vertex
     void dijksrta(int id) {
@@ -231,14 +208,7 @@ class Graph{
                     w.dist = v.dist + weight;
                     w.prev = v;
                     pq.add(new Path(w, w.dist));
-                    // save the path to the vertex
-                    if (v.getPath(w) != null){
-                        if (v.getPath(w).numOfEnemy > weight) {
-                            v.addPath(new Path(w, weight));
-                        }
-                    } else {
-                        v.addPath(new Path(w, w.dist));
-                    }
+                    v.distances[w.id] = w.dist - v.dist;
                 }
             }
         }
