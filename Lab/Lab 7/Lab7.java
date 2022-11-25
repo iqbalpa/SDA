@@ -33,29 +33,44 @@ public class Lab7 {
             graf.addEdge(A, B, W);
         }
 
+        graf.dijksrta(1);
         int Q = in.nextInt();
         while (Q-- > 0) {
             int S = in.nextInt(), K = in.nextInt();
             // TODO: Implementasi query
             if (K == 0) out.println("NO");
             else {
+                boolean willSave = false;
                 Vertex v = graf.getVertex(S);
-                if (v.isAttacked) {
-                    if (K > 0) out.println("YES");
-                } else {
-                    boolean flag = false;
-                    graf.dijksrta(S);
-                    for (int i=1; i<=N; i++){
-                        Vertex v2 = graf.getVertex(i);
-                        if (v2.isAttacked && v2.dist < K) {
-                            out.println("YES");
-                            flag = true;
-                            break;
-                        }
+                for (Path p: v.vMap.values()){
+                    if (K > p.numOfEnemy) {
+                        out.println("YES");
+                        willSave = true;
+                        break;
                     }
-                    if (!flag) out.println("NO");
                 }
+                if (!willSave) out.println("NO");
+                // Vertex v = graf.getVertex(S);
+                // if (v.isAttacked) {
+                //     if (K > 0) out.println("YES");
+                // } else {
+                //     boolean flag = false;
+                //     graf.dijksrta(S);
+                //     for (int i=1; i<=N; i++){
+                //         Vertex v2 = graf.getVertex(i);
+                //         if (v2.isAttacked && v2.dist < K) {
+                //             out.println("YES");
+                //             flag = true;
+                //             break;
+                //         }
+                //     }
+                //     if (!flag) out.println("NO");
+                // }
             }
+            // * Biar ga TLE adalah dengan cara jalanin method dijkstra 1x
+            // * untuk setiap vertex kita harus save path ke vertex lain
+            // * jadi kita bisa cek apakah vertex yang di serang bisa di reach
+            // * dengan jarak yang lebih kecil dari K
         }
         out.close();
     }
@@ -92,6 +107,8 @@ public class Lab7 {
     }
 }
 
+// REFERENSI:
+// slide Pak Alfan: https://ir.cs.ui.ac.id/alfan/sda/graf/
 // untuk Path
 class Edge {
     Vertex to;
@@ -179,6 +196,11 @@ class Graph{
             v.reset();
         }
     }
+    int getDistance(int from, int to) {
+        Vertex v = getVertex(from);
+        Vertex w = getVertex(to);
+        return v.getPath(w).numOfEnemy;
+    }
 
     // find shortest path to the isAttacked vertex
     void dijksrta(int id) {
@@ -210,11 +232,13 @@ class Graph{
                     w.prev = v;
                     pq.add(new Path(w, w.dist));
                     // save the path to the vertex
-                    // if (v.getPath(w) != null){
-                    //     v.getPath(w).numOfEnemy = w.dist;
-                    // } else {
-                    //     v.addPath(new Path(w, w.dist));
-                    // }
+                    if (v.getPath(w) != null){
+                        if (v.getPath(w).numOfEnemy > weight) {
+                            v.addPath(new Path(w, weight));
+                        }
+                    } else {
+                        v.addPath(new Path(w, w.dist));
+                    }
                 }
             }
         }
