@@ -36,24 +36,31 @@ public class Lab7 {
         for (int i = 0; i < E; i++) {
             int A = in.nextInt(), B = in.nextInt(), W = in.nextInt();
             // TODO: Inisialisasi jalan berarah dari benteng A ke B dengan W musuh
-            graf.get(A-1).add(new AdjListNode(B-1, W));
+            graf.get(B-1).add(new AdjListNode(A-1, W));
         }
 
         // looping over attackedBenteng
+        // out.println("================");
         for (int i = 0; i < attackedBenteng.size(); i++) {
             int[] temp = dijkstra(N, graf, attackedBenteng.get(i));
             for (int j = 0; j < temp.length; j++) {
                 if (distances[j] > temp[j]) {
                     distances[j] = temp[j];
                 }
+                // out.print(temp[j] + " ");
             }
+            // out.println();
+            // out.println("================");
         }
 
-        out.println("sortest path to attacked benteng: ");
-        for (int i = 0; i < distances.length; i++) {
-            out.println(distances[i] + " ");
-        }
-        out.println();
+        // // DEBUGGING
+        // out.println("================");
+        // out.println("sortest path to attacked benteng: ");
+        // for (int i = 0; i < distances.length; i++) {
+        //     out.print(distances[i] + " ");
+        // }
+        // out.println();
+        // out.println("================");
 
         int Q = in.nextInt();
         while (Q-- > 0) {
@@ -100,7 +107,8 @@ public class Lab7 {
     }
 
 
-    // REFERENSI: Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+    // REFERENSI: 
+    // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
     static class AdjListNode {
         int vertex, weight;
         AdjListNode(int v, int w){
