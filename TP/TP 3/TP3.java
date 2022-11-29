@@ -11,8 +11,48 @@ public class TP3 {
         OutputStream outputStream = System.out;
         out = new PrintWriter(outputStream);
 
+        // banyak pos
+        int N = in.nextInt(); 
+        // banyak terowongan
+        int M = in.nextInt();
+        for (int i=0; i<M; i++){
+            int Ai = in.nextInt();
+            int Bi = in.nextInt();
+            int Li = in.nextInt();
+            int Si = in.nextInt();
+        }
+        // banyak kurcaci
+        int P = in.nextInt();
+        for (int i=0; i<P; i++){
+            int Ri = in.nextInt();
+        }
+
+        // banyak query
+        int Q = in.nextInt();
+        for (int i=0; i<Q; i++){
+            String query = in.next();
+            if (query.equals("KABUR")){
+                int F = in.nextInt();
+                int E = in.nextInt();
+                KABUR(F, E);
+            } 
+            else if (query.equals("SIMULASI")){
+                // get input
+            } 
+            else if (query.equals("SUPER")){
+                int V1 = in.nextInt();
+                int V2 = in.nextInt();
+                int V3 = in.nextInt();
+                SUPER(V1, V2, V3);
+            }
+        }
+
         out.close();
     }
+
+    static void KABUR(int F, int E){}
+    static void SIMULASI(int[] K){}
+    static void SUPER(int V1, int V2, int V3){}
 
     // taken from https://codeforces.com/submissions/Petr
     // together with PrintWriter, these input-output (IO) is much faster than the
