@@ -4,6 +4,7 @@ import java.util.*;
 public class TP3 {
     private static InputReader in;
     private static PrintWriter out;
+    static ArrayList<ArrayList<AdjListNode>> graf = new ArrayList<>();
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -13,21 +14,26 @@ public class TP3 {
 
         // banyak pos
         int N = in.nextInt(); 
-        for (int i=1; i<=N; i++){
-            Vertex newVertex = new Vertex(i);
+        for (int i=0; i<N; i++){
+            graf.add(new ArrayList<>()); // index start from 0
         }
         // banyak terowongan
         int M = in.nextInt();
         for (int i=0; i<M; i++){
-            int Ai = in.nextInt();
-            int Bi = in.nextInt();
-            int Li = in.nextInt();
-            int Si = in.nextInt();
+            int Ai = in.nextInt(); // from
+            int Bi = in.nextInt(); // to
+            int Li = in.nextInt(); // length
+            int Si = in.nextInt(); // size
+            // undirected graph
+            graf.get(Ai-1).add(new AdjListNode(Bi-1, Li, Si));
+            graf.get(Bi-1).add(new AdjListNode(Ai-1, Li, Si));
         }
         // banyak kurcaci
         int P = in.nextInt();
         for (int i=0; i<P; i++){
-            int Ri = in.nextInt();
+            int Ri = in.nextInt(); // posisi kurcaci
+            graf.get(Ri-1).get(Ri-1).jmlKurcaci = 1; // ! masih salah
+            // * bisa pake array biasa buat nyimpen jumlah kurcaci di tiap pos
         }
 
         // banyak query
@@ -83,95 +89,46 @@ public class TP3 {
             return Integer.parseInt(next());
         }
     }
-}
 
-// Edge as Terowongan
-class Edge {
-    Vertex dest;
-    int size; //ukuran terowongan
-    int length; //panjang terowongan
-    public Edge(Vertex d, int s, int l){
-        dest = d;
-        size = s;
-        length = l;
-    }
-}
-// Vertex as Pos
-class Vertex {
-    int id;
-    List<Edge> adj;
-    int dist;
-    Vertex prev;
-    int scratch;
-    public Vertex(int i){
-        id = i;
-        adj = new LinkedList<Edge>();
-        reset();
-    }
-    public void reset(){
-        dist = Graph.INFINITY;
-        prev = null;
-        scratch = 0;
-    }
-}
-// Path
-class Path implements Comparable<Path>{
-    int size;
-    int length;
-    public Path(int s, int l){
-        size = s;
-        length = l;
-    }
-    public int compareTo(Path rhs){
-        if (size != rhs.size) return size - rhs.size;
-        else return length - rhs.length;
-    }
-}
-// Graph
-class Graph {
-    static final int INFINITY = Integer.MAX_VALUE;
-    Map<Integer, Vertex> vertexMap = new HashMap<>();
-
-    Vertex getVertex(int id){
-        Vertex v = vertexMap.get(id);
-        if (v == null){
-            v = new Vertex(id);
-            vertexMap.put(id, v);
+    // REFERENSI: 
+    // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+    static class AdjListNode {
+        int vertex, jmlKurcaci;
+        long length, size;
+        AdjListNode(int v, long w, long s) {
+            this.vertex = v;
+            this.length = w;
+            this.size = s;
+            this.jmlKurcaci = 0;
         }
-        return v;
-    }
-    void clearAll(){
-        for (Vertex v : vertexMap.values()){
-            v.reset();
+        int getVertex(){
+            return this.vertex;
+        }
+        long getLength(){
+            return this.length;
+        }
+        long getSize(){
+            return this.size;
         }
     }
-    void addEdge(int sourceId, int destId, int size, int length){
-        Vertex v = getVertex(sourceId);
-        Vertex w = getVertex(destId);
-        v.adj.add(new Edge(w, size, length));
-    }
-    void dijkstra(int startId){
-        Queue<Path> pq = new PriorityQueue<>();
-        Vertex start = vertexMap.get(startId);
-        pq.add(new Path(0, 0));
-        start.dist = 0;
-        int nodesSeen = 0;
-        while (!pq.isEmpty() && nodesSeen < vertexMap.size()){
-            Path vrec = pq.remove();
-            Vertex v = vertexMap.get(vrec.size);
-            if (v.scratch != 0) continue;
-            v.scratch = 1;
-            nodesSeen++;
-            for (Edge e : v.adj){
-                Vertex w = e.dest;
-                int cvw = e.size;
-                if (cvw < 0) continue;
-                if (w.dist > v.dist + cvw){
-                    w.dist = v.dist + cvw;
-                    w.prev = v;
-                    pq.add(new Path(w.dist, w.id));
+    public static long[] dijkstra(int V, ArrayList<ArrayList<AdjListNode>> graph, int src){
+        long[] distance = new long[V];
+        for (int i=0; i<V; i++) distance[i] = Long.MAX_VALUE;
+        distance[src] = (long)0;
+
+        PriorityQueue<AdjListNode> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getLength() - v2.getLength()));
+        pq.add(new AdjListNode(src, 0, 0));
+
+        while (pq.size() > 0){
+            AdjListNode current = pq.poll();
+            
+            for (AdjListNode n: graph.get(current.getVertex())){
+                if (distance[current.getVertex()] + n.getLength() < distance[n.getVertex()]){
+                    distance[n.getVertex()] = distance[current.getVertex()] + n.getLength();
+                    pq.add(new AdjListNode(n.getVertex(), distance[n.getVertex()], n.getSize()));
                 }
             }
         }
+        return distance;
     }
 }
