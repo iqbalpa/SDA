@@ -13,6 +13,9 @@ public class TP3 {
 
         // banyak pos
         int N = in.nextInt(); 
+        for (int i=1; i<=N; i++){
+            Vertex newVertex = new Vertex(i);
+        }
         // banyak terowongan
         int M = in.nextInt();
         for (int i=0; i<M; i++){
@@ -78,6 +81,97 @@ public class TP3 {
         }
         public int nextInt() {
             return Integer.parseInt(next());
+        }
+    }
+}
+
+// Edge as Terowongan
+class Edge {
+    Vertex dest;
+    int size; //ukuran terowongan
+    int length; //panjang terowongan
+    public Edge(Vertex d, int s, int l){
+        dest = d;
+        size = s;
+        length = l;
+    }
+}
+// Vertex as Pos
+class Vertex {
+    int id;
+    List<Edge> adj;
+    int dist;
+    Vertex prev;
+    int scratch;
+    public Vertex(int i){
+        id = i;
+        adj = new LinkedList<Edge>();
+        reset();
+    }
+    public void reset(){
+        dist = Graph.INFINITY;
+        prev = null;
+        scratch = 0;
+    }
+}
+// Path
+class Path implements Comparable<Path>{
+    int size;
+    int length;
+    public Path(int s, int l){
+        size = s;
+        length = l;
+    }
+    public int compareTo(Path rhs){
+        if (size != rhs.size) return size - rhs.size;
+        else return length - rhs.length;
+    }
+}
+// Graph
+class Graph {
+    static final int INFINITY = Integer.MAX_VALUE;
+    Map<Integer, Vertex> vertexMap = new HashMap<>();
+
+    Vertex getVertex(int id){
+        Vertex v = vertexMap.get(id);
+        if (v == null){
+            v = new Vertex(id);
+            vertexMap.put(id, v);
+        }
+        return v;
+    }
+    void clearAll(){
+        for (Vertex v : vertexMap.values()){
+            v.reset();
+        }
+    }
+    void addEdge(int sourceId, int destId, int size, int length){
+        Vertex v = getVertex(sourceId);
+        Vertex w = getVertex(destId);
+        v.adj.add(new Edge(w, size, length));
+    }
+    void dijkstra(int startId){
+        Queue<Path> pq = new PriorityQueue<>();
+        Vertex start = vertexMap.get(startId);
+        pq.add(new Path(0, 0));
+        start.dist = 0;
+        int nodesSeen = 0;
+        while (!pq.isEmpty() && nodesSeen < vertexMap.size()){
+            Path vrec = pq.remove();
+            Vertex v = vertexMap.get(vrec.size);
+            if (v.scratch != 0) continue;
+            v.scratch = 1;
+            nodesSeen++;
+            for (Edge e : v.adj){
+                Vertex w = e.dest;
+                int cvw = e.size;
+                if (cvw < 0) continue;
+                if (w.dist > v.dist + cvw){
+                    w.dist = v.dist + cvw;
+                    w.prev = v;
+                    pq.add(new Path(w.dist, w.id));
+                }
+            }
         }
     }
 }
