@@ -132,3 +132,57 @@ public class TP3 {
         return distance;
     }
 }
+
+class MinHeap {
+    int[] heap;
+    int tail;
+    MinHeap(){
+        heap = new int[2_000];
+        tail = 0;
+    }
+    int parent(int i){
+        return (i-1)/2;
+    }
+    int leftChild(int i){
+        return 2*i+1;
+    }
+    int rightChild(int i){
+        return 2*i+2;
+    }
+    int getMin(){
+        return heap[0];
+    }
+    void swap(int i, int j){
+        int temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
+    }
+    void percolateUp(int i){
+        if (i==0) return;
+        if (heap[parent(i)] > heap[i]){
+            swap(i, parent(i));
+            percolateUp(parent(i));
+        }
+    }
+    void percolateDown(int i){
+        int min = i;
+        if (leftChild(i) < tail && heap[leftChild(i)] < heap[min]) min = leftChild(i);
+        if (rightChild(i) < tail && heap[rightChild(i)] < heap[min]) min = rightChild(i);
+        if (min != i){
+            swap(i, min);
+            percolateDown(min);
+        }
+    }
+    void insert(int x){
+        heap[tail] = x;
+        tail++;
+        percolateUp(tail-1);
+    }
+    int removeMin(){
+        int min = heap[0];
+        heap[0] = heap[tail-1];
+        tail--;
+        percolateDown(0);
+        return min;
+    }
+}
