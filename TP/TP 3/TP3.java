@@ -6,7 +6,7 @@ public class TP3 {
     private static PrintWriter out;
     static ArrayList<ArrayList<Node>> graf = new ArrayList<>();
     static int[] posisiKurcaci;
-    static int M;
+    static int M, N;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -15,7 +15,7 @@ public class TP3 {
         out = new PrintWriter(outputStream);
 
         // banyak pos
-        int N = in.nextInt(); 
+        N = in.nextInt(); 
         posisiKurcaci = new int[N];
         for (int i=0; i<N; i++){
             graf.add(new ArrayList<>()); // index start from 0
@@ -62,7 +62,10 @@ public class TP3 {
         out.close();
     }
 
-    static void KABUR(int F, int E){}
+    static void KABUR(int F, int E){
+        long[] dist = dijkstraKabur(M, graf, F-1);
+        out.println(dist[E-1]);
+    }
     static void SIMULASI(int[] K){}
     static void SUPER(int V1, int V2, int V3){}
 
@@ -95,12 +98,17 @@ public class TP3 {
 
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+    // * QUERY KABUR: dijkstra pake size node (descending)
     public static long[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
-        long[] distance = new long[V];
-        for (int i=0; i<V; i++) distance[i] = Long.MAX_VALUE;
-        distance[src] = (long)0;
+        long[] sizeTerowongan = new long[V];
+        long[] sizeTerowonganTerkecil = new long[V];
+        for (int i=0; i<V; i++) {
+            sizeTerowongan[i] = Long.MIN_VALUE;
+            sizeTerowonganTerkecil[i] = Long.MAX_VALUE;
+        }
+        sizeTerowongan[src] = (long)0;
+        sizeTerowonganTerkecil[src] = (long)0;
 
-        // PriorityQueue<Node> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getLength() - v2.getLength()));
         Heap pq = new Heap(M, new Comparator<Node>(){
             @Override
             public int compare(Node v1, Node v2){
@@ -114,13 +122,16 @@ public class TP3 {
             Node current = pq.poll();
             
             for (Node n: graph.get(current.getVertex())){
-                if (distance[current.getVertex()] + n.getLength() < distance[n.getVertex()]){
-                    distance[n.getVertex()] = distance[current.getVertex()] + n.getLength();
-                    pq.insert(new Node(n.getVertex(), distance[n.getVertex()], n.getSize()));
+                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
+                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
+                    pq.insert(new Node(n.getVertex(), sizeTerowongan[n.getVertex()], n.getSize()));
+                }
+                if (sizeTerowonganTerkecil[current.getVertex()] < sizeTerowonganTerkecil[n.getVertex()]){
+                    sizeTerowonganTerkecil[n.getVertex()] = sizeTerowonganTerkecil[current.getVertex()];
                 }
             }
         }
-        return distance;
+        return sizeTerowonganTerkecil;
     }
 }
 
