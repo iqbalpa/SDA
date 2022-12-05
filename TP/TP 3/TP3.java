@@ -6,6 +6,7 @@ public class TP3 {
     private static PrintWriter out;
     static ArrayList<ArrayList<Node>> graf = new ArrayList<>();
     static int[] posisiKurcaci;
+    static int M;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -20,7 +21,7 @@ public class TP3 {
             graf.add(new ArrayList<>()); // index start from 0
         }
         // banyak terowongan
-        int M = in.nextInt();
+        M = in.nextInt();
         for (int i=0; i<M; i++){
             int Ai = in.nextInt(); // from
             int Bi = in.nextInt(); // to
@@ -99,16 +100,23 @@ public class TP3 {
         for (int i=0; i<V; i++) distance[i] = Long.MAX_VALUE;
         distance[src] = (long)0;
 
-        PriorityQueue<Node> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getLength() - v2.getLength()));
-        pq.add(new Node(src, 0, 0));
+        // PriorityQueue<Node> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getLength() - v2.getLength()));
+        Heap pq = new Heap(M, new Comparator<Node>(){
+            @Override
+            public int compare(Node v1, Node v2){
+                return (int)(v2.getSize() - v1.getSize());
+            }
+        });
 
-        while (pq.size() > 0){
+        pq.insert(new Node(src, 0, 0));
+
+        while (pq.getSize() > 0){
             Node current = pq.poll();
             
             for (Node n: graph.get(current.getVertex())){
                 if (distance[current.getVertex()] + n.getLength() < distance[n.getVertex()]){
                     distance[n.getVertex()] = distance[current.getVertex()] + n.getLength();
-                    pq.add(new Node(n.getVertex(), distance[n.getVertex()], n.getSize()));
+                    pq.insert(new Node(n.getVertex(), distance[n.getVertex()], n.getSize()));
                 }
             }
         }
@@ -144,8 +152,8 @@ class Node implements Comparable<Node> {
 class Heap {
     Node[] heap;
     int tail;
-    Heap(){
-        heap = new Node[1000_000];
+    Heap(int M, Comparator<Node> comparator){
+        heap = new Node[M];
         tail = 0;
     }
     int parent(int i){
@@ -156,6 +164,9 @@ class Heap {
     }
     int rightChild(int i){
         return 2*i+2;
+    }
+    int getSize(){
+        return tail;
     }
     Node getMin(){
         return heap[0];
@@ -188,9 +199,11 @@ class Heap {
         percolateUp(tail);
         tail++;
     }
-    void deleteMin(){
+    Node poll(){
+        Node min = heap[0];
         heap[0] = heap[tail-1];
         tail--;
         percolateDown(0);
+        return min;
     }
 }
