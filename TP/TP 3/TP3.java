@@ -4,7 +4,8 @@ import java.util.*;
 public class TP3 {
     private static InputReader in;
     private static PrintWriter out;
-    static ArrayList<ArrayList<AdjListNode>> graf = new ArrayList<>();
+    static ArrayList<ArrayList<Node>> graf = new ArrayList<>();
+    static int[] posisiKurcaci;
 
     public static void main(String[] args) {
         InputStream inputStream = System.in;
@@ -14,6 +15,7 @@ public class TP3 {
 
         // banyak pos
         int N = in.nextInt(); 
+        posisiKurcaci = new int[N];
         for (int i=0; i<N; i++){
             graf.add(new ArrayList<>()); // index start from 0
         }
@@ -25,15 +27,15 @@ public class TP3 {
             int Li = in.nextInt(); // length
             int Si = in.nextInt(); // size
             // undirected graph
-            graf.get(Ai-1).add(new AdjListNode(Bi-1, Li, Si));
-            graf.get(Bi-1).add(new AdjListNode(Ai-1, Li, Si));
+            graf.get(Ai-1).add(new Node(Bi-1, Li, Si));
+            graf.get(Bi-1).add(new Node(Ai-1, Li, Si));
         }
         // banyak kurcaci
         int P = in.nextInt();
         for (int i=0; i<P; i++){
             int Ri = in.nextInt(); // posisi kurcaci
-            graf.get(Ri-1).get(Ri-1).jmlKurcaci = 1; // ! masih salah
-            // * bisa pake array biasa buat nyimpen jumlah kurcaci di tiap pos
+            // inisiasi jumlah kurcaci di post Ri-1
+            posisiKurcaci[Ri-1] = 1;
         }
 
         // banyak query
@@ -92,40 +94,21 @@ public class TP3 {
 
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
-    static class AdjListNode {
-        int vertex, jmlKurcaci;
-        long length, size;
-        AdjListNode(int v, long w, long s) {
-            this.vertex = v;
-            this.length = w;
-            this.size = s;
-            this.jmlKurcaci = 0;
-        }
-        int getVertex(){
-            return this.vertex;
-        }
-        long getLength(){
-            return this.length;
-        }
-        long getSize(){
-            return this.size;
-        }
-    }
-    public static long[] dijkstra(int V, ArrayList<ArrayList<AdjListNode>> graph, int src){
+    public static long[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
         long[] distance = new long[V];
         for (int i=0; i<V; i++) distance[i] = Long.MAX_VALUE;
         distance[src] = (long)0;
 
-        PriorityQueue<AdjListNode> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getLength() - v2.getLength()));
-        pq.add(new AdjListNode(src, 0, 0));
+        PriorityQueue<Node> pq = new PriorityQueue<>((v1,v2) -> (int)(v1.getLength() - v2.getLength()));
+        pq.add(new Node(src, 0, 0));
 
         while (pq.size() > 0){
-            AdjListNode current = pq.poll();
+            Node current = pq.poll();
             
-            for (AdjListNode n: graph.get(current.getVertex())){
+            for (Node n: graph.get(current.getVertex())){
                 if (distance[current.getVertex()] + n.getLength() < distance[n.getVertex()]){
                     distance[n.getVertex()] = distance[current.getVertex()] + n.getLength();
-                    pq.add(new AdjListNode(n.getVertex(), distance[n.getVertex()], n.getSize()));
+                    pq.add(new Node(n.getVertex(), distance[n.getVertex()], n.getSize()));
                 }
             }
         }
@@ -133,11 +116,36 @@ public class TP3 {
     }
 }
 
-class MinHeap {
-    int[] heap;
+// REFERENSI: 
+// Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+class Node implements Comparable<Node> {
+    int vertex;
+    long length, size;
+    Node(int v, long w, long s) {
+        this.vertex = v;
+        this.length = w;
+        this.size = s;
+    }
+    int getVertex(){
+        return this.vertex;
+    }
+    long getLength(){
+        return this.length;
+    }
+    long getSize(){
+        return this.size;
+    }
+    @Override
+    public int compareTo(Node n){
+        return (int)(n.size - this.size);
+    }
+}
+
+class Heap {
+    Node[] heap;
     int tail;
-    MinHeap(){
-        heap = new int[2_000];
+    Heap(){
+        heap = new Node[1000_000];
         tail = 0;
     }
     int parent(int i){
@@ -149,40 +157,40 @@ class MinHeap {
     int rightChild(int i){
         return 2*i+2;
     }
-    int getMin(){
+    Node getMin(){
         return heap[0];
     }
     void swap(int i, int j){
-        int temp = heap[i];
+        Node temp = heap[i];
         heap[i] = heap[j];
         heap[j] = temp;
     }
     void percolateUp(int i){
         if (i==0) return;
-        if (heap[parent(i)] > heap[i]){
+        if (heap[parent(i)].compareTo(heap[i]) > 0){
             swap(i, parent(i));
             percolateUp(parent(i));
         }
     }
     void percolateDown(int i){
-        int min = i;
-        if (leftChild(i) < tail && heap[leftChild(i)] < heap[min]) min = leftChild(i);
-        if (rightChild(i) < tail && heap[rightChild(i)] < heap[min]) min = rightChild(i);
-        if (min != i){
-            swap(i, min);
-            percolateDown(min);
+        int left = leftChild(i);
+        int right = rightChild(i);
+        int smallest = i;
+        if (left < tail && heap[left].compareTo(heap[smallest]) < 0) smallest = left;
+        if (right < tail && heap[right].compareTo(heap[smallest]) < 0) smallest = right;
+        if (smallest != i){
+            swap(i, smallest);
+            percolateDown(smallest);
         }
     }
-    void insert(int x){
-        heap[tail] = x;
+    void insert(Node n){
+        heap[tail] = n;
+        percolateUp(tail);
         tail++;
-        percolateUp(tail-1);
     }
-    int removeMin(){
-        int min = heap[0];
+    void deleteMin(){
         heap[0] = heap[tail-1];
         tail--;
         percolateDown(0);
-        return min;
     }
 }
