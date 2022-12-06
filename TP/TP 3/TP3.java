@@ -29,7 +29,7 @@ public class TP3 {
             int Si = in.nextInt(); // size
             // undirected graph
             graf.get(Ai-1).add(new Node(Bi-1, Li, Si));
-            // graf.get(Bi-1).add(new Node(Ai-1, Li, Si));
+            graf.get(Bi-1).add(new Node(Ai-1, Li, Si));
         }
         // banyak kurcaci
         int P = in.nextInt();
@@ -65,6 +65,7 @@ public class TP3 {
 
     static void KABUR(int F, int E){
         long[] dist = dijkstraKabur(N, graf, F-1);
+        dist[F-1] = 0;
         out.println(dist[E-1]);
     }
     static void SIMULASI(int[] K){}
@@ -102,44 +103,40 @@ public class TP3 {
     // * QUERY KABUR: dijkstra pake size node (descending)
     public static long[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
         long[] sizeTerowongan = new long[V];
-        long[] sizeTerowonganTerkecil = new long[V];
+        // long[] sizeTerowonganTerkecil = new long[V];
+        // boolean[] visited = new boolean[V];
         for (int i=0; i<V; i++) {
-            sizeTerowongan[i] = Long.MIN_VALUE;
-            sizeTerowonganTerkecil[i] = Long.MAX_VALUE;
+            sizeTerowongan[i] = Long.MAX_VALUE;
+            // sizeTerowonganTerkecil[i] = Long.MAX_VALUE;
         }
         sizeTerowongan[src] = (long)0;
-        sizeTerowonganTerkecil[src] = (long)0;
+        // sizeTerowonganTerkecil[src] = (long)0;
 
         Heap pq = new Heap(N, new Comparator<Node>(){
             @Override
             public int compare(Node v1, Node v2){
-                return (int)(v2.getSize() - v1.getSize());
+                return (int)(v1.getSize() - v2.getSize());
             }
         });
-        // PriorityQueue<Node> pq = new PriorityQueue<>((v1, v2) -> (int)(v2.getSize() - v1.getSize()));
-
         pq.insert(new Node(src, 0, 0));
-        // pq.add(new Node(src, 0, 0));
+        // visited[src] = true;
 
-        // while (pq.getSize() > 0){
         while (pq.getSize() > 0){
-            // System.out.println("<<<< size heap: " + pq.size());
             Node current = pq.poll();
-            // System.out.println("<<<< new size heap: " + pq.size());
+            // visited[current.getVertex()] = true;
 
             for (Node n: graph.get(current.getVertex())){
-                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
+                if (sizeTerowongan[current.getVertex()] + n.getSize() < sizeTerowongan[n.getVertex()]){
                     sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
                     pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
-                    // pq.add(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
+                    // if (!visited[n.getVertex()]){
+                    //     pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
+                    // }
                 }
-                if (sizeTerowonganTerkecil[current.getVertex()] < sizeTerowonganTerkecil[n.getVertex()]){
-                    sizeTerowonganTerkecil[n.getVertex()] = sizeTerowonganTerkecil[current.getVertex()];
-                }
-                // System.out.println("<<<< newest size heap: " + pq.size());
             }
         }
-        return sizeTerowonganTerkecil;
+        // return sizeTerowonganTerkecil;
+        return sizeTerowongan;
     }
 }
 
@@ -214,7 +211,6 @@ class Heap {
         }
     }
     void insert(Node n){
-        // System.out.println(">>>> tail: " + tail);
         heap[tail] = n;
         percolateUp(tail);
         tail++;
