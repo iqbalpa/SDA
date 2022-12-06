@@ -62,13 +62,24 @@ public class TP3 {
         out.close();
     }
 
-    static void KABUR(int F, int E){
-        int from = F-1;
-        int to = E-1;
-        int result = dijkstraKabur(N, graf, from, to);
-        out.println(result);
+    static void KABUR(int F, int E){}
+    static void SIMULASI(){
+        graf.add(new ArrayList<>());
+        int K = in.nextInt();
+        for (int i=0; i<K; i++){
+            int Vi = in.nextInt();
+            graf.get(graf.size()-1).add(new Node(Vi-1, 0, 0));
+        }
+        int[] dist = dijkstraSimulasi(N+1, graf, graf.size()-1);
+        int time = Integer.MIN_VALUE;
+        for (int i=0; i<posisiKurcaci.length; i++){
+            if (time < dist[posisiKurcaci[i]]){
+                time = dist[posisiKurcaci[i]];
+            }
+        }
+        graf.remove(graf.size()-1);
+        out.println(time);
     }
-    static void SIMULASI(){}
     static void SUPER(int V1, int V2, int V3){}
 
     // taken from https://codeforces.com/submissions/Petr
@@ -100,31 +111,26 @@ public class TP3 {
 
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
-    // * QUERY KABUR: dijkstra pake size node (descending)
-    public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
-        int[] sizeTerowongan = new int[V];
-        boolean[] visited = new boolean[V];
-        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MAX_VALUE;
-        sizeTerowongan[src] = 0;
-
-        int temp = Integer.MAX_VALUE;
+    // * QUERY SIMULASI: dijkstra pake length node (ascending)
+    public static int[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
+        int[] lengthTerowongan = new int[V];
+        for (int i=0; i<V; i++) lengthTerowongan[i] = Integer.MAX_VALUE;
+        lengthTerowongan[src] = 0;
 
         Heap pq = new Heap();
         pq.insert(new Node(src, 0, 0));
 
-        while (!pq.isEmpty()){
+        while (pq.getSize() > 0){
             Node current = pq.poll();
 
-            visited[current.getVertex()] = true;
-            if (current.getVertex() != src && temp > current.getSize()) temp = current.getSize();
-            if (current.getVertex() == dest) break;
-            
             for (Node n: graph.get(current.getVertex())){
-                if (visited[n.getVertex()]) continue;
-                pq.insert(new Node(n.getVertex(), 0, n.getSize()));
+                if (lengthTerowongan[current.getVertex()] + n.getLength() < lengthTerowongan[n.getVertex()]){
+                    lengthTerowongan[n.getVertex()] = lengthTerowongan[current.getVertex()] + n.getLength();
+                    pq.insert(new Node(n.getVertex(), lengthTerowongan[n.getVertex()], n.getSize()));
+                }
             }
         }
-        return temp;
+        return lengthTerowongan;
     }
 }
 
