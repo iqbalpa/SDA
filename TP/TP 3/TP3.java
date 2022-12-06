@@ -85,7 +85,26 @@ public class TP3 {
         graf.remove(graf.size()-1);
         out.println(time);
     }
-    static void SUPER(int V1, int V2, int V3){}
+    static void SUPER(int V1, int V2, int V3){
+        int[][] dist1 = dijkstraSuper(N, graf, V1-1);
+        int[][] dist2 = dijkstraSuper(N, graf, V2-1);
+        int result1 = 0;
+        int flag = 0;
+        for (int j=0; j<N; j++){
+            if (j == V2) break;
+            if (dist1[flag][j] != Integer.MAX_VALUE) result1 += dist1[flag][j];
+            else result1 += dist1[1][j];
+        }
+        int result2 = 0;
+        flag = 0;
+        for (int j=0; j<N; j++){
+            if (j == V1) break;
+            if (dist2[flag][j] != Integer.MAX_VALUE) result2 += dist2[flag][j];
+            else result2 += dist2[1][j];
+        }
+        out.println(result1);
+        out.println(result2);
+    }
 
     // taken from https://codeforces.com/submissions/Petr
     // together with PrintWriter, these input-output (IO) is much faster than the
@@ -163,6 +182,43 @@ public class TP3 {
         }
         return lengthTerowongan;
     }
+    // * QUERY SUPER: dijkstra pake length node (ascending)
+    public static int[][] dijkstraSuper(int V, ArrayList<ArrayList<Node>> graph, int src){
+        int[][] distance = new int[2][V];
+        for (int i=0; i<2; i++) for (int j=0; j<N; j++) distance[i][j] = Integer.MAX_VALUE;
+        distance[0][src] = 0;
+        distance[1][src] = 0;
+
+        Heap pq = new Heap();
+        pq.insert(new Node(src, 0, 0));
+
+        while (pq.getSize() > 0){
+            Node current = pq.poll();
+
+            for (Node n: graph.get(current.getVertex())){
+                if (current.useSuper == 0){
+                    if (distance[current.useSuper][current.getVertex()] + n.getLength() < distance[current.useSuper][n.getVertex()]){
+                        distance[0][n.getVertex()] = distance[0][current.getVertex()] + n.getLength();
+                        pq.insert(new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize()));
+                    } 
+                    else if (distance[current.useSuper][current.getVertex()] < distance[current.useSuper][n.getVertex()]) {
+                        distance[1][n.getVertex()] = distance[0][current.getVertex()];
+                        Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
+                        node1.useSuper = 1;
+                        pq.insert(node1);
+                    }
+                } else {
+                    if (distance[current.useSuper][current.getVertex()] + n.getSize() < distance[current.useSuper][n.getVertex()]){
+                        distance[1][n.getVertex()] = distance[1][current.getVertex()] + n.getSize();
+                        Node node1 = new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize());
+                        node1.useSuper = 1;
+                        pq.insert(node1);
+                    }
+                }
+            }
+        }
+        return distance;
+    }
 }
 
 // REFERENSI: 
@@ -170,10 +226,12 @@ public class TP3 {
 class Node implements Comparable<Node> {
     int vertex;
     int length, size;
+    int useSuper;
     Node(int v, int l, int s) {
         this.vertex = v;
         this.length = l;
         this.size = s;
+        this.useSuper = 0;
     }
     int getVertex(){
         return this.vertex;
