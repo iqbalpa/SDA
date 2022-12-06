@@ -43,7 +43,6 @@ public class TP3 {
         int Q = in.nextInt();
         for (int i=0; i<Q; i++){
             String query = in.next();
-            // System.out.println("===== query ke: " + (i+1));
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
@@ -181,6 +180,9 @@ class Heap {
     }
     int getSize(){
         return heap.size();
+    }
+    boolean isEmpty(){
+        return heap.size() == 0;
     }
     Node getMin(){
         return heap.get(0);
