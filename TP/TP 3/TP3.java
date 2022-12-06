@@ -29,7 +29,7 @@ public class TP3 {
             int Si = in.nextInt(); // size
             // undirected graph
             graf.get(Ai-1).add(new Node(Bi-1, Li, Si));
-            graf.get(Bi-1).add(new Node(Ai-1, Li, Si));
+            // graf.get(Bi-1).add(new Node(Ai-1, Li, Si));
         }
         // banyak kurcaci
         int P = in.nextInt();
@@ -43,7 +43,7 @@ public class TP3 {
         int Q = in.nextInt();
         for (int i=0; i<Q; i++){
             String query = in.next();
-            System.out.println("===== query ke: " + (i+1));
+            // System.out.println("===== query ke: " + (i+1));
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
@@ -116,23 +116,27 @@ public class TP3 {
                 return (int)(v2.getSize() - v1.getSize());
             }
         });
+        // PriorityQueue<Node> pq = new PriorityQueue<>((v1, v2) -> (int)(v2.getSize() - v1.getSize()));
 
         pq.insert(new Node(src, 0, 0));
+        // pq.add(new Node(src, 0, 0));
 
+        // while (pq.getSize() > 0){
         while (pq.getSize() > 0){
-            System.out.println("<<<< size heap: " + pq.getSize());
+            // System.out.println("<<<< size heap: " + pq.size());
             Node current = pq.poll();
-            System.out.println("<<<< new size heap: " + pq.getSize());
+            // System.out.println("<<<< new size heap: " + pq.size());
 
             for (Node n: graph.get(current.getVertex())){
                 if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
                     sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
                     pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
+                    // pq.add(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
                 }
-                // if (sizeTerowonganTerkecil[current.getVertex()] < sizeTerowonganTerkecil[n.getVertex()]){
-                //     sizeTerowonganTerkecil[n.getVertex()] = sizeTerowonganTerkecil[current.getVertex()];
-                // }
-                System.out.println("<<<< newest size heap: " + pq.getSize());
+                if (sizeTerowonganTerkecil[current.getVertex()] < sizeTerowonganTerkecil[n.getVertex()]){
+                    sizeTerowonganTerkecil[n.getVertex()] = sizeTerowonganTerkecil[current.getVertex()];
+                }
+                // System.out.println("<<<< newest size heap: " + pq.size());
             }
         }
         return sizeTerowonganTerkecil;
@@ -144,9 +148,9 @@ public class TP3 {
 class Node implements Comparable<Node> {
     int vertex;
     long length, size;
-    Node(int v, long w, long s) {
+    Node(int v, long l, long s) {
         this.vertex = v;
-        this.length = w;
+        this.length = l;
         this.size = s;
     }
     int getVertex(){
@@ -210,7 +214,7 @@ class Heap {
         }
     }
     void insert(Node n){
-        System.out.println(">>>> tail: " + tail);
+        // System.out.println(">>>> tail: " + tail);
         heap[tail] = n;
         percolateUp(tail);
         tail++;
