@@ -47,7 +47,7 @@ public class TP3 {
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
-                // KABUR(F, E);
+                KABUR(F, E);
             } 
             else if (query.equals("SIMULASI")){
                 SIMULASI();
@@ -63,26 +63,13 @@ public class TP3 {
         out.close();
     }
 
-    static void KABUR(int F, int E){
-        int temp = dijkstraKabur(N, graf, F-1, E-1);
-        out.println(temp);
-        // dist[F-1] = 0;
-        // out.println(dist[E-1]);
-    }
+    static void KABUR(int F, int E){}
     static void SIMULASI(){
         graf.add(new ArrayList<>());
         int K = in.nextInt();
-        // int[] longest = new int[K];
         for (int i=0; i<K; i++){
             int Vi = in.nextInt();
             graf.get(graf.size()-1).add(new Node(Vi-1, 0, 0));
-
-            // int[] dist = dijkstraSimulasi(N, graf, Vi-1);
-            // for (int j=0; j<posisiKurcaci.length; j++){
-            //     if (dist[posisiKurcaci[j]] > longest[i]){
-            //         longest[i] = dist[posisiKurcaci[j]];
-            //     }
-            // }
         }
         int[] dist = dijkstraSimulasi(N+1, graf, graf.size()-1);
         int time = Integer.MIN_VALUE;
@@ -93,14 +80,6 @@ public class TP3 {
         }
         graf.remove(graf.size()-1);
         out.println(time);
-        // // find min in array longest
-        // long min = longest[0];
-        // for (int i=1; i<longest.length; i++){
-        //     if (longest[i] < min && longest[i] != 0){
-        //         min = longest[i];
-        //     }
-        // }
-        // out.println(min);
     }
     static void SUPER(int V1, int V2, int V3){}
 
@@ -133,51 +112,6 @@ public class TP3 {
 
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
-    // * QUERY KABUR: dijkstra pake size node (descending)
-    public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
-        int[] sizeTerowongan = new int[V];
-        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MIN_VALUE;
-        sizeTerowongan[src] = (int)0;
-
-        int temp = Integer.MAX_VALUE;
-        int counter = 0;
-        boolean[] visited = new boolean[V];
-
-        Heap pq = new Heap(N, new Comparator<Node>(){
-            @Override
-            public int compare(Node v1, Node v2){
-                return v2.getSize() - v1.getSize();
-            }
-        });
-        pq.insert(new Node(src, 0, 0));
-        // visited[src] = true;
-
-        while (pq.getSize() > 0){
-            Node current = pq.poll();
-            visited[current.getVertex()] = true;
-            if (current.getVertex() == dest) visited[current.getVertex()] = false;
-
-            for (Node n: graph.get(current.getVertex())){
-                if (visited[n.getVertex()]) continue;
-
-                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
-                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
-
-                    if (temp == Integer.MAX_VALUE && n.getVertex() == dest){
-                        temp = n.getSize();
-                    } else if (temp > n.getSize() && n.getVertex() == dest){
-                        temp = n.getSize();
-                    }
-
-                    pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
-                }
-            }
-            counter++;
-        }
-        out.println(">>>> jml while loop: " + counter);
-        return temp;
-    }
-
     // * QUERY SIMULASI: dijkstra pake length node (ascending)
     public static int[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
         int[] lengthTerowongan = new int[V];
@@ -232,11 +166,9 @@ class Node implements Comparable<Node> {
 }
 
 class Heap {
-    Node[] heap;
-    int tail;
+    ArrayList<Node> heap;
     Heap(int M, Comparator<Node> comparator){
-        heap = new Node[M];
-        tail = 0;
+        heap = new ArrayList<>();
     }
     int parent(int i){
         return (i-1)/2;
@@ -248,43 +180,46 @@ class Heap {
         return 2*i+2;
     }
     int getSize(){
-        return tail;
+        return heap.size();
     }
     Node getMin(){
-        return heap[0];
+        return heap.get(0);
     }
     void swap(int i, int j){
-        Node temp = heap[i];
-        heap[i] = heap[j];
-        heap[j] = temp;
+        Node temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
     }
     void percolateUp(int i){
-        if (i==0) return;
-        if (heap[parent(i)].compareTo(heap[i]) > 0){
+        if (i == 0) return;
+        if (heap.get(i).compareTo(heap.get(parent(i))) < 0){
             swap(i, parent(i));
             percolateUp(parent(i));
         }
     }
     void percolateDown(int i){
-        int left = leftChild(i);
-        int right = rightChild(i);
-        int smallest = i;
-        if (left < tail && heap[left].compareTo(heap[smallest]) < 0) smallest = left;
-        if (right < tail && heap[right].compareTo(heap[smallest]) < 0) smallest = right;
-        if (smallest != i){
-            swap(i, smallest);
-            percolateDown(smallest);
+        int min = i;
+        int l = leftChild(i);
+        if (l < heap.size() && heap.get(l).compareTo(heap.get(min)) < 0){
+            min = l;
+        }
+        int r = rightChild(i);
+        if (r < heap.size() && heap.get(r).compareTo(heap.get(min)) < 0){
+            min = r;
+        }
+        if (min != i){
+            swap(i, min);
+            percolateDown(min);
         }
     }
     void insert(Node n){
-        heap[tail] = n;
-        percolateUp(tail);
-        tail++;
+        heap.add(n);
+        percolateUp(heap.size()-1);
     }
     Node poll(){
-        Node min = heap[0];
-        heap[0] = heap[tail-1];
-        tail--;
+        Node min = heap.get(0);
+        heap.set(0, heap.get(heap.size()-1));
+        heap.remove(heap.size()-1);
         percolateDown(0);
         return min;
     }
