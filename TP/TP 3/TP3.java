@@ -47,7 +47,7 @@ public class TP3 {
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
-                // KABUR(F, E);
+                KABUR(F, E);
             } 
             else if (query.equals("SIMULASI")){
                 SIMULASI();
@@ -64,34 +64,12 @@ public class TP3 {
     }
 
     static void KABUR(int F, int E){
-        int temp = dijkstraKabur(N, graf, F-1, E-1);
-        out.println(temp);
-        // dist[F-1] = 0;
-        // out.println(dist[E-1]);
+        int from = F-1;
+        int to = E-1;
+        int result = MSTKabur(graf, from, to);
+        out.println(result);
     }
-    static void SIMULASI(){
-        int K = in.nextInt();
-        // int[] exit = new int[K];
-        int[] longest = new int[K];
-        for (int i=0; i<K; i++){
-            int Vi = in.nextInt();
-            // exit[i] = Vi-1;
-            int[] dist = dijkstraSimulasi(N, graf, Vi-1);
-            for (int j=0; j<posisiKurcaci.length; j++){
-                if (dist[posisiKurcaci[j]] > longest[i]){
-                    longest[i] = dist[posisiKurcaci[j]];
-                }
-            }
-        }
-        // find min in array longest
-        long min = longest[0];
-        for (int i=1; i<longest.length; i++){
-            if (longest[i] < min && longest[i] != 0){
-                min = longest[i];
-            }
-        }
-        out.println(min);
-    }
+    static void SIMULASI(){}
     static void SUPER(int V1, int V2, int V3){}
 
     // taken from https://codeforces.com/submissions/Petr
@@ -122,78 +100,77 @@ public class TP3 {
     }
 
     // REFERENSI: 
-    // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
-    // * QUERY KABUR: dijkstra pake size node (descending)
-    public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
-        int[] sizeTerowongan = new int[V];
-        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MIN_VALUE;
-        sizeTerowongan[src] = (int)0;
-
-        int temp = Integer.MAX_VALUE;
-        int counter = 0;
-        boolean[] visited = new boolean[V];
-
-        Heap pq = new Heap(N, new Comparator<Node>(){
-            @Override
-            public int compare(Node v1, Node v2){
-                return v2.getSize() - v1.getSize();
+    // Geeksforgeeks https://www.geeksforgeeks.org/maximum-spanning-tree-using-prims-algorithm/
+    // * QUERY KABUR: Prim's Algorithm Maximum Spanning Tree
+    public static int findMaxNode(boolean[] visited, int size[]){
+        int max = Integer.MIN_VALUE;
+        int maxIndex = -1;
+        for (int i=0; i<N; i++){
+            if (!visited[i] && size[i] > max){
+                max = size[i];
+                maxIndex = i;
             }
-        });
-        pq.insert(new Node(src, 0, 0));
-        // visited[src] = true;
-
-        while (pq.getSize() > 0){
-            Node current = pq.poll();
-            visited[current.getVertex()] = true;
-            if (current.getVertex() == dest) visited[current.getVertex()] = false;
-
-            for (Node n: graph.get(current.getVertex())){
-                if (visited[n.getVertex()]) continue;
-
-                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
-                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
-
-                    if (temp == Integer.MAX_VALUE && n.getVertex() == dest){
-                        temp = n.getSize();
-                    } else if (temp > n.getSize() && n.getVertex() == dest){
-                        temp = n.getSize();
-                    }
-
-                    pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
-                }
-            }
-            counter++;
         }
-        out.println(">>>> jml while loop: " + counter);
+        return maxIndex;
+    }
+    public static int MSTKabur(ArrayList<ArrayList<Node>> graf, int start, int dest){
+        boolean[] visited = new boolean[N];
+        int[] parent = new int[N];
+        int[] size = new int[N];
+        int temp = Integer.MAX_VALUE;
+        for (int i=0; i<N; i++) size[i] = Integer.MIN_VALUE;
+ 
+        size[start] = Integer.MAX_VALUE;
+        parent[start] = -1;
+
+        for (int i=0; i<N-1; i++){
+            int maxNodeIndex = findMaxNode(visited, size);
+            visited[maxNodeIndex] = true;
+            for (int j=0; j<graf.get(maxNodeIndex).size(); j++){
+                int node = graf.get(maxNodeIndex).get(j).vertex;
+                int sizeNode = graf.get(maxNodeIndex).get(j).size;
+                
+                if (!visited[node] && sizeNode > size[node]){
+                    parent[node] = maxNodeIndex;
+                    size[node] = sizeNode;
+                }
+                if (temp > size[node] && node == dest) temp = size[node];
+                if (node == dest) break;
+            }
+        }
+
         return temp;
     }
+    // public static int MSTKabur(ArrayList<ArrayList<Node>> graf, int start, int dest){
+    //     boolean[] visited = new boolean[N];
+    //     int[] parent = new int[N];
+    //     int[] size = new int[N];
 
-    // * QUERY SIMULASI: dijkstra pake length node (ascending)
-    public static int[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
-        int[] lengthTerowongan = new int[V];
-        for (int i=0; i<V; i++) lengthTerowongan[i] = Integer.MAX_VALUE;
-        lengthTerowongan[src] = 0;
+    //     int temp = Integer.MAX_VALUE;
 
-        Heap pq = new Heap(N, new Comparator<Node>(){
-            @Override
-            public int compare(Node v1, Node v2){
-                return v1.getLength() - v2.getLength();
-            }
-        });
-        pq.insert(new Node(src, 0, 0));
+    //     for (int i=0; i<N; i++){
+    //         size[i] = Integer.MIN_VALUE;
+    //     }
 
-        while (pq.getSize() > 0){
-            Node current = pq.poll();
+    //     size[0] = Integer.MAX_VALUE;
+    //     parent[0] = -1;
 
-            for (Node n: graph.get(current.getVertex())){
-                if (lengthTerowongan[current.getVertex()] + n.getLength() < lengthTerowongan[n.getVertex()]){
-                    lengthTerowongan[n.getVertex()] = lengthTerowongan[current.getVertex()] + n.getLength();
-                    pq.insert(new Node(n.getVertex(), lengthTerowongan[n.getVertex()], n.getSize()));
-                }
-            }
-        }
-        return lengthTerowongan;
-    }
+    //     for (int i=0; i<N-1; i++){
+    //         int maxNodeIndex = findMaxNode(visited, size);
+    //         visited[maxNodeIndex] = true;
+    //         for (int j=0; j<graf.get(maxNodeIndex).size(); j++){
+    //             int node = graf.get(maxNodeIndex).get(j).vertex;
+    //             int sizeNode = graf.get(maxNodeIndex).get(j).size;
+    //             if (!visited[node] && sizeNode > size[node]){
+    //                 parent[node] = maxNodeIndex;
+    //                 size[node] = sizeNode;
+    //             }
+    //             if (temp > size[node] && node == dest) temp = size[node];
+    //             if (node == dest) break;
+    //         }
+    //     }
+    //     return temp;
+    // }
 }
 
 // REFERENSI: 
