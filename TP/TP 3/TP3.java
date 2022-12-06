@@ -43,6 +43,7 @@ public class TP3 {
         int Q = in.nextInt();
         for (int i=0; i<Q; i++){
             String query = in.next();
+            System.out.println("===== query ke: " + (i+1));
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
@@ -63,7 +64,7 @@ public class TP3 {
     }
 
     static void KABUR(int F, int E){
-        long[] dist = dijkstraKabur(M, graf, F-1);
+        long[] dist = dijkstraKabur(N, graf, F-1);
         out.println(dist[E-1]);
     }
     static void SIMULASI(int[] K){}
@@ -109,7 +110,7 @@ public class TP3 {
         sizeTerowongan[src] = (long)0;
         sizeTerowonganTerkecil[src] = (long)0;
 
-        Heap pq = new Heap(M, new Comparator<Node>(){
+        Heap pq = new Heap(N, new Comparator<Node>(){
             @Override
             public int compare(Node v1, Node v2){
                 return (int)(v2.getSize() - v1.getSize());
@@ -119,16 +120,19 @@ public class TP3 {
         pq.insert(new Node(src, 0, 0));
 
         while (pq.getSize() > 0){
+            System.out.println("<<<< size heap: " + pq.getSize());
             Node current = pq.poll();
-            
+            System.out.println("<<<< new size heap: " + pq.getSize());
+
             for (Node n: graph.get(current.getVertex())){
                 if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
                     sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
-                    pq.insert(new Node(n.getVertex(), sizeTerowongan[n.getVertex()], n.getSize()));
+                    pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
                 }
-                if (sizeTerowonganTerkecil[current.getVertex()] < sizeTerowonganTerkecil[n.getVertex()]){
-                    sizeTerowonganTerkecil[n.getVertex()] = sizeTerowonganTerkecil[current.getVertex()];
-                }
+                // if (sizeTerowonganTerkecil[current.getVertex()] < sizeTerowonganTerkecil[n.getVertex()]){
+                //     sizeTerowonganTerkecil[n.getVertex()] = sizeTerowonganTerkecil[current.getVertex()];
+                // }
+                System.out.println("<<<< newest size heap: " + pq.getSize());
             }
         }
         return sizeTerowonganTerkecil;
@@ -206,6 +210,7 @@ class Heap {
         }
     }
     void insert(Node n){
+        System.out.println(">>>> tail: " + tail);
         heap[tail] = n;
         percolateUp(tail);
         tail++;
