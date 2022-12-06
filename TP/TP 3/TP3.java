@@ -70,27 +70,37 @@ public class TP3 {
         // out.println(dist[E-1]);
     }
     static void SIMULASI(){
+        graf.add(new ArrayList<>());
         int K = in.nextInt();
-        // int[] exit = new int[K];
-        int[] longest = new int[K];
+        // int[] longest = new int[K];
         for (int i=0; i<K; i++){
             int Vi = in.nextInt();
-            // exit[i] = Vi-1;
-            int[] dist = dijkstraSimulasi(N, graf, Vi-1);
-            for (int j=0; j<posisiKurcaci.length; j++){
-                if (dist[posisiKurcaci[j]] > longest[i]){
-                    longest[i] = dist[posisiKurcaci[j]];
-                }
+            graf.get(graf.size()-1).add(new Node(Vi-1, 0, 0));
+
+            // int[] dist = dijkstraSimulasi(N, graf, Vi-1);
+            // for (int j=0; j<posisiKurcaci.length; j++){
+            //     if (dist[posisiKurcaci[j]] > longest[i]){
+            //         longest[i] = dist[posisiKurcaci[j]];
+            //     }
+            // }
+        }
+        int[] dist = dijkstraSimulasi(N+1, graf, graf.size()-1);
+        int time = Integer.MIN_VALUE;
+        for (int i=0; i<posisiKurcaci.length; i++){
+            if (time < dist[posisiKurcaci[i]]){
+                time = dist[posisiKurcaci[i]];
             }
         }
-        // find min in array longest
-        long min = longest[0];
-        for (int i=1; i<longest.length; i++){
-            if (longest[i] < min && longest[i] != 0){
-                min = longest[i];
-            }
-        }
-        out.println(min);
+        graf.remove(graf.size()-1);
+        out.println(time);
+        // // find min in array longest
+        // long min = longest[0];
+        // for (int i=1; i<longest.length; i++){
+        //     if (longest[i] < min && longest[i] != 0){
+        //         min = longest[i];
+        //     }
+        // }
+        // out.println(min);
     }
     static void SUPER(int V1, int V2, int V3){}
 
