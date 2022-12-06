@@ -33,10 +33,10 @@ public class TP3 {
         }
         // banyak kurcaci
         int P = in.nextInt();
+        posisiKurcaci = new int[P];
         for (int i=0; i<P; i++){
             int Ri = in.nextInt(); // posisi kurcaci
-            // inisiasi jumlah kurcaci di post Ri-1
-            posisiKurcaci[Ri-1] = 1;
+            posisiKurcaci[i] = Ri-1;
         }
 
         // banyak query
@@ -50,7 +50,7 @@ public class TP3 {
                 KABUR(F, E);
             } 
             else if (query.equals("SIMULASI")){
-                // get input
+                SIMULASI();
             } 
             else if (query.equals("SUPER")){
                 int V1 = in.nextInt();
@@ -64,11 +64,33 @@ public class TP3 {
     }
 
     static void KABUR(int F, int E){
-        long[] dist = dijkstraKabur(N, graf, F-1);
-        dist[F-1] = 0;
-        out.println(dist[E-1]);
+        // long[] dist = dijkstraKabur(N, graf, F-1);
+        // dist[F-1] = 0;
+        // out.println(dist[E-1]);
     }
-    static void SIMULASI(int[] K){}
+    static void SIMULASI(){
+        int K = in.nextInt();
+        // int[] exit = new int[K];
+        long[] longest = new long[K];
+        for (int i=0; i<K; i++){
+            int Vi = in.nextInt();
+            // exit[i] = Vi-1;
+            long[] dist = dijkstraSimulasi(N, graf, Vi-1);
+            for (int j=0; j<posisiKurcaci.length; j++){
+                if (dist[j] > longest[i]){
+                    longest[i] = dist[j];
+                }
+            }
+        }
+        // find min in array longest
+        long min = longest[0];
+        for (int i=1; i<longest.length; i++){
+            if (longest[i] < min){
+                min = longest[i];
+            }
+        }
+        out.println(min);
+    }
     static void SUPER(int V1, int V2, int V3){}
 
     // taken from https://codeforces.com/submissions/Petr
@@ -101,42 +123,57 @@ public class TP3 {
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
     // * QUERY KABUR: dijkstra pake size node (descending)
-    public static long[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
-        long[] sizeTerowongan = new long[V];
-        // long[] sizeTerowonganTerkecil = new long[V];
-        // boolean[] visited = new boolean[V];
-        for (int i=0; i<V; i++) {
-            sizeTerowongan[i] = Long.MAX_VALUE;
-            // sizeTerowonganTerkecil[i] = Long.MAX_VALUE;
-        }
-        sizeTerowongan[src] = (long)0;
-        // sizeTerowonganTerkecil[src] = (long)0;
+    // public static long[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
+    //     long[] sizeTerowongan = new long[V];
+    //     for (int i=0; i<V; i++) sizeTerowongan[i] = Long.MAX_VALUE;
+    //     sizeTerowongan[src] = (long)0;
+
+    //     Heap pq = new Heap(N, new Comparator<Node>(){
+    //         @Override
+    //         public int compare(Node v1, Node v2){
+    //             return (int)(v1.getSize() - v2.getSize());
+    //         }
+    //     });
+    //     pq.insert(new Node(src, 0, 0));
+
+    //     while (pq.getSize() > 0){
+    //         Node current = pq.poll();
+
+    //         for (Node n: graph.get(current.getVertex())){
+    //             if (sizeTerowongan[current.getVertex()] + n.getSize() < sizeTerowongan[n.getVertex()]){
+    //                 sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
+    //                 pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
+    //             }
+    //         }
+    //     }
+    //     return sizeTerowongan;
+    // }
+
+    // * QUERY SIMULASI: dijkstra pake length node (ascending)
+    public static long[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
+        long[] lengthTerowongan = new long[V];
+        for (int i=0; i<V; i++) lengthTerowongan[i] = Long.MAX_VALUE;
+        lengthTerowongan[src] = (long)0;
 
         Heap pq = new Heap(N, new Comparator<Node>(){
             @Override
             public int compare(Node v1, Node v2){
-                return (int)(v1.getSize() - v2.getSize());
+                return (int)(v1.getLength() - v2.getLength());
             }
         });
         pq.insert(new Node(src, 0, 0));
-        // visited[src] = true;
 
         while (pq.getSize() > 0){
             Node current = pq.poll();
-            // visited[current.getVertex()] = true;
 
             for (Node n: graph.get(current.getVertex())){
-                if (sizeTerowongan[current.getVertex()] + n.getSize() < sizeTerowongan[n.getVertex()]){
-                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
-                    pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
-                    // if (!visited[n.getVertex()]){
-                    //     pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
-                    // }
+                if (lengthTerowongan[current.getVertex()] + n.getLength() < lengthTerowongan[n.getVertex()]){
+                    lengthTerowongan[n.getVertex()] = lengthTerowongan[current.getVertex()] + n.getLength();
+                    pq.insert(new Node(n.getVertex(), lengthTerowongan[n.getVertex()], n.getSize()));
                 }
             }
         }
-        // return sizeTerowonganTerkecil;
-        return sizeTerowongan;
+        return lengthTerowongan;
     }
 }
 
