@@ -66,8 +66,6 @@ public class TP3 {
     static void KABUR(int F, int E){
         int from = F-1;
         int to = E-1;
-        int result = MSTKabur(graf, from, to);
-        out.println(result);
     }
     static void SIMULASI(){}
     static void SUPER(int V1, int V2, int V3){}
@@ -100,77 +98,34 @@ public class TP3 {
     }
 
     // REFERENSI: 
-    // Geeksforgeeks https://www.geeksforgeeks.org/maximum-spanning-tree-using-prims-algorithm/
-    // * QUERY KABUR: Prim's Algorithm Maximum Spanning Tree
-    public static int findMaxNode(boolean[] visited, int size[]){
-        int max = Integer.MIN_VALUE;
-        int maxIndex = -1;
-        for (int i=0; i<N; i++){
-            if (!visited[i] && size[i] > max){
-                max = size[i];
-                maxIndex = i;
-            }
-        }
-        return maxIndex;
-    }
-    public static int MSTKabur(ArrayList<ArrayList<Node>> graf, int start, int dest){
-        boolean[] visited = new boolean[N];
-        int[] parent = new int[N];
-        int[] size = new int[N];
-        int temp = Integer.MAX_VALUE;
-        for (int i=0; i<N; i++) size[i] = Integer.MIN_VALUE;
- 
-        size[start] = Integer.MAX_VALUE;
-        parent[start] = -1;
+    // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+    // * QUERY KABUR: dijkstra pake size node (descending)
+    public static int[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
+        int[] sizeTerowongan = new int[V];
+        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MIN_VALUE;
+        sizeTerowongan[src] = 0;
 
-        for (int i=0; i<N-1; i++){
-            int maxNodeIndex = findMaxNode(visited, size);
-            visited[maxNodeIndex] = true;
-            for (int j=0; j<graf.get(maxNodeIndex).size(); j++){
-                int node = graf.get(maxNodeIndex).get(j).vertex;
-                int sizeNode = graf.get(maxNodeIndex).get(j).size;
-                
-                if (!visited[node] && sizeNode > size[node]){
-                    parent[node] = maxNodeIndex;
-                    size[node] = sizeNode;
+        Heap pq = new Heap(M, new Comparator<Node>(){
+            @Override
+            public int compare(Node v1, Node v2){
+                return (int)(v2.getSize() - v1.getSize());
+            }
+        });
+
+        pq.insert(new Node(src, 0, 0));
+
+        while (pq.getSize() > 0){
+            Node current = pq.poll();
+            
+            for (Node n: graph.get(current.getVertex())){
+                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
+                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
+                    pq.insert(new Node(n.getVertex(), sizeTerowongan[n.getVertex()], n.getSize()));
                 }
-                if (temp > size[node] && node == dest) temp = size[node];
-                if (node == dest) break;
             }
         }
-
-        return temp;
+        return sizeTerowongan;
     }
-    // public static int MSTKabur(ArrayList<ArrayList<Node>> graf, int start, int dest){
-    //     boolean[] visited = new boolean[N];
-    //     int[] parent = new int[N];
-    //     int[] size = new int[N];
-
-    //     int temp = Integer.MAX_VALUE;
-
-    //     for (int i=0; i<N; i++){
-    //         size[i] = Integer.MIN_VALUE;
-    //     }
-
-    //     size[0] = Integer.MAX_VALUE;
-    //     parent[0] = -1;
-
-    //     for (int i=0; i<N-1; i++){
-    //         int maxNodeIndex = findMaxNode(visited, size);
-    //         visited[maxNodeIndex] = true;
-    //         for (int j=0; j<graf.get(maxNodeIndex).size(); j++){
-    //             int node = graf.get(maxNodeIndex).get(j).vertex;
-    //             int sizeNode = graf.get(maxNodeIndex).get(j).size;
-    //             if (!visited[node] && sizeNode > size[node]){
-    //                 parent[node] = maxNodeIndex;
-    //                 size[node] = sizeNode;
-    //             }
-    //             if (temp > size[node] && node == dest) temp = size[node];
-    //             if (node == dest) break;
-    //         }
-    //     }
-    //     return temp;
-    // }
 }
 
 // REFERENSI: 
