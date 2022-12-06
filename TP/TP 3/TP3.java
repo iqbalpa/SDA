@@ -43,11 +43,10 @@ public class TP3 {
         int Q = in.nextInt();
         for (int i=0; i<Q; i++){
             String query = in.next();
-            // System.out.println("===== query ke: " + (i+1));
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
-                // KABUR(F, E);
+                KABUR(F, E);
             } 
             else if (query.equals("SIMULASI")){
                 SIMULASI();
@@ -63,7 +62,12 @@ public class TP3 {
         out.close();
     }
 
-    static void KABUR(int F, int E){}
+    static void KABUR(int F, int E){
+        int from = F-1;
+        int to = E-1;
+        int result = dijkstraKabur(N, graf, from, to);
+        out.println(result);
+    }
     static void SIMULASI(){}
     static void SUPER(int V1, int V2, int V3){}
 
@@ -93,6 +97,35 @@ public class TP3 {
             return Integer.parseInt(next());
         }
     }
+
+    // REFERENSI: 
+    // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+    // * QUERY KABUR: dijkstra pake size node (descending)
+    public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
+        int[] sizeTerowongan = new int[V];
+        boolean[] visited = new boolean[V];
+        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MAX_VALUE;
+        sizeTerowongan[src] = 0;
+
+        int temp = Integer.MAX_VALUE;
+
+        Heap pq = new Heap();
+        pq.insert(new Node(src, 0, 0));
+
+        while (!pq.isEmpty()){
+            Node current = pq.poll();
+
+            visited[current.getVertex()] = true;
+            if (current.getVertex() != src && temp > current.getSize()) temp = current.getSize();
+            if (current.getVertex() == dest) break;
+            
+            for (Node n: graph.get(current.getVertex())){
+                if (visited[n.getVertex()]) continue;
+                pq.insert(new Node(n.getVertex(), 0, n.getSize()));
+            }
+        }
+        return temp;
+    }
 }
 
 // REFERENSI: 
@@ -116,16 +149,16 @@ class Node implements Comparable<Node> {
     }
     @Override
     public int compareTo(Node n){
-        return (int)(n.size - this.size);
+        if (this.length < n.getLength()) return -1;
+        else if (this.length > n.getLength()) return 1;
+        else return n.getSize() - this.size;
     }
 }
 
 class Heap {
-    Node[] heap;
-    int tail;
-    Heap(int M, Comparator<Node> comparator){
-        heap = new Node[M];
-        tail = 0;
+    ArrayList<Node> heap;
+    Heap(){
+        heap = new ArrayList<>();
     }
     int parent(int i){
         return (i-1)/2;
@@ -137,43 +170,49 @@ class Heap {
         return 2*i+2;
     }
     int getSize(){
-        return tail;
+        return heap.size();
+    }
+    boolean isEmpty(){
+        return heap.size() == 0;
     }
     Node getMin(){
-        return heap[0];
+        return heap.get(0);
     }
     void swap(int i, int j){
-        Node temp = heap[i];
-        heap[i] = heap[j];
-        heap[j] = temp;
+        Node temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
     }
     void percolateUp(int i){
-        if (i==0) return;
-        if (heap[parent(i)].compareTo(heap[i]) > 0){
+        if (i == 0) return;
+        if (heap.get(i).compareTo(heap.get(parent(i))) < 0){
             swap(i, parent(i));
             percolateUp(parent(i));
         }
     }
     void percolateDown(int i){
-        int left = leftChild(i);
-        int right = rightChild(i);
-        int smallest = i;
-        if (left < tail && heap[left].compareTo(heap[smallest]) < 0) smallest = left;
-        if (right < tail && heap[right].compareTo(heap[smallest]) < 0) smallest = right;
-        if (smallest != i){
-            swap(i, smallest);
-            percolateDown(smallest);
+        int min = i;
+        int l = leftChild(i);
+        if (l < heap.size() && heap.get(l).compareTo(heap.get(min)) < 0){
+            min = l;
+        }
+        int r = rightChild(i);
+        if (r < heap.size() && heap.get(r).compareTo(heap.get(min)) < 0){
+            min = r;
+        }
+        if (min != i){
+            swap(i, min);
+            percolateDown(min);
         }
     }
     void insert(Node n){
-        heap[tail] = n;
-        percolateUp(tail);
-        tail++;
+        heap.add(n);
+        percolateUp(heap.size()-1);
     }
     Node poll(){
-        Node min = heap[0];
-        heap[0] = heap[tail-1];
-        tail--;
+        Node min = heap.get(0);
+        heap.set(0, heap.get(heap.size()-1));
+        heap.remove(heap.size()-1);
         percolateDown(0);
         return min;
     }
