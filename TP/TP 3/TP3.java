@@ -47,7 +47,7 @@ public class TP3 {
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
-                KABUR(F, E);
+                // KABUR(F, E);
             } 
             else if (query.equals("SIMULASI")){
                 SIMULASI();
@@ -64,28 +64,29 @@ public class TP3 {
     }
 
     static void KABUR(int F, int E){
-        // long[] dist = dijkstraKabur(N, graf, F-1);
+        int temp = dijkstraKabur(N, graf, F-1, E-1);
+        out.println(temp);
         // dist[F-1] = 0;
         // out.println(dist[E-1]);
     }
     static void SIMULASI(){
         int K = in.nextInt();
         // int[] exit = new int[K];
-        long[] longest = new long[K];
+        int[] longest = new int[K];
         for (int i=0; i<K; i++){
             int Vi = in.nextInt();
             // exit[i] = Vi-1;
-            long[] dist = dijkstraSimulasi(N, graf, Vi-1);
+            int[] dist = dijkstraSimulasi(N, graf, Vi-1);
             for (int j=0; j<posisiKurcaci.length; j++){
-                if (dist[j] > longest[i]){
-                    longest[i] = dist[j];
+                if (dist[posisiKurcaci[j]] > longest[i]){
+                    longest[i] = dist[posisiKurcaci[j]];
                 }
             }
         }
         // find min in array longest
         long min = longest[0];
         for (int i=1; i<longest.length; i++){
-            if (longest[i] < min){
+            if (longest[i] < min && longest[i] != 0){
                 min = longest[i];
             }
         }
@@ -123,42 +124,60 @@ public class TP3 {
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
     // * QUERY KABUR: dijkstra pake size node (descending)
-    // public static long[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
-    //     long[] sizeTerowongan = new long[V];
-    //     for (int i=0; i<V; i++) sizeTerowongan[i] = Long.MAX_VALUE;
-    //     sizeTerowongan[src] = (long)0;
+    public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
+        int[] sizeTerowongan = new int[V];
+        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MIN_VALUE;
+        sizeTerowongan[src] = (int)0;
 
-    //     Heap pq = new Heap(N, new Comparator<Node>(){
-    //         @Override
-    //         public int compare(Node v1, Node v2){
-    //             return (int)(v1.getSize() - v2.getSize());
-    //         }
-    //     });
-    //     pq.insert(new Node(src, 0, 0));
-
-    //     while (pq.getSize() > 0){
-    //         Node current = pq.poll();
-
-    //         for (Node n: graph.get(current.getVertex())){
-    //             if (sizeTerowongan[current.getVertex()] + n.getSize() < sizeTerowongan[n.getVertex()]){
-    //                 sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
-    //                 pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
-    //             }
-    //         }
-    //     }
-    //     return sizeTerowongan;
-    // }
-
-    // * QUERY SIMULASI: dijkstra pake length node (ascending)
-    public static long[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
-        long[] lengthTerowongan = new long[V];
-        for (int i=0; i<V; i++) lengthTerowongan[i] = Long.MAX_VALUE;
-        lengthTerowongan[src] = (long)0;
+        int temp = Integer.MAX_VALUE;
+        int counter = 0;
+        boolean[] visited = new boolean[V];
 
         Heap pq = new Heap(N, new Comparator<Node>(){
             @Override
             public int compare(Node v1, Node v2){
-                return (int)(v1.getLength() - v2.getLength());
+                return v2.getSize() - v1.getSize();
+            }
+        });
+        pq.insert(new Node(src, 0, 0));
+        // visited[src] = true;
+
+        while (pq.getSize() > 0){
+            Node current = pq.poll();
+            visited[current.getVertex()] = true;
+            if (current.getVertex() == dest) visited[current.getVertex()] = false;
+
+            for (Node n: graph.get(current.getVertex())){
+                if (visited[n.getVertex()]) continue;
+
+                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
+                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
+
+                    if (temp == Integer.MAX_VALUE && n.getVertex() == dest){
+                        temp = n.getSize();
+                    } else if (temp > n.getSize() && n.getVertex() == dest){
+                        temp = n.getSize();
+                    }
+
+                    pq.insert(new Node(n.getVertex(), n.getLength(), sizeTerowongan[n.getVertex()]));
+                }
+            }
+            counter++;
+        }
+        out.println(">>>> jml while loop: " + counter);
+        return temp;
+    }
+
+    // * QUERY SIMULASI: dijkstra pake length node (ascending)
+    public static int[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
+        int[] lengthTerowongan = new int[V];
+        for (int i=0; i<V; i++) lengthTerowongan[i] = Integer.MAX_VALUE;
+        lengthTerowongan[src] = 0;
+
+        Heap pq = new Heap(N, new Comparator<Node>(){
+            @Override
+            public int compare(Node v1, Node v2){
+                return v1.getLength() - v2.getLength();
             }
         });
         pq.insert(new Node(src, 0, 0));
@@ -181,8 +200,8 @@ public class TP3 {
 // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
 class Node implements Comparable<Node> {
     int vertex;
-    long length, size;
-    Node(int v, long l, long s) {
+    int length, size;
+    Node(int v, int l, int s) {
         this.vertex = v;
         this.length = l;
         this.size = s;
@@ -190,10 +209,10 @@ class Node implements Comparable<Node> {
     int getVertex(){
         return this.vertex;
     }
-    long getLength(){
+    int getLength(){
         return this.length;
     }
-    long getSize(){
+    int getSize(){
         return this.size;
     }
     @Override
