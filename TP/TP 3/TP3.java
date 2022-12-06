@@ -88,22 +88,33 @@ public class TP3 {
     static void SUPER(int V1, int V2, int V3){
         int[][] dist1 = dijkstraSuper(N, graf, V1-1);
         int[][] dist2 = dijkstraSuper(N, graf, V2-1);
-        int result1 = 0;
-        int flag = 0;
-        for (int j=0; j<N; j++){
-            if (j == V2) break;
-            if (dist1[flag][j] != Integer.MAX_VALUE) result1 += dist1[flag][j];
-            else result1 += dist1[1][j];
+
+        System.out.println("============= dist1 ==============");
+        for (int i=0; i<2; i++) {
+            for (int j=0; j<N; j++){
+                System.out.printf("%d   ", dist1[i][j]);
+            }
+            System.out.println();
         }
-        int result2 = 0;
-        flag = 0;
-        for (int j=0; j<N; j++){
-            if (j == V1) break;
-            if (dist2[flag][j] != Integer.MAX_VALUE) result2 += dist2[flag][j];
-            else result2 += dist2[1][j];
+        System.out.println("============= dist2 ==============");
+        for (int i=0; i<2; i++) {
+            for (int j=0; j<N; j++){
+                System.out.printf("%d   ", dist2[i][j]);
+            }
+            System.out.println();
         }
-        out.println(result1);
-        out.println(result2);
+        System.out.println("==================================");
+
+        int result1_0 = dist1[0][V2-1];
+        int result1_1 = dist1[1][V2-1];
+        int result2_0 = dist2[0][V3-1];
+        int result2_1 = dist2[1][V3-1];
+
+        if (result1_0 + result2_1 <= result1_1 + result2_0) {
+            out.println(result1_0 + result2_1);
+        } else {
+            out.println(result1_1 + result2_0);
+        }
     }
 
     // taken from https://codeforces.com/submissions/Petr
@@ -192,23 +203,26 @@ public class TP3 {
         Heap pq = new Heap();
         pq.insert(new Node(src, 0, 0));
 
-        while (pq.getSize() > 0){
+        while (!pq.isEmpty()){
             Node current = pq.poll();
 
             for (Node n: graph.get(current.getVertex())){
                 if (current.useSuper == 0){
-                    if (distance[current.useSuper][current.getVertex()] + n.getLength() < distance[current.useSuper][n.getVertex()]){
-                        distance[0][n.getVertex()] = distance[0][current.getVertex()] + n.getLength();
-                        pq.insert(new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize()));
-                    } 
-                    else if (distance[current.useSuper][current.getVertex()] < distance[current.useSuper][n.getVertex()]) {
+                    if (distance[0][current.getVertex()] + n.getLength() < distance[0][n.getVertex()]){
+                        // state 1
+                        // saat pake SUPER
                         distance[1][n.getVertex()] = distance[0][current.getVertex()];
                         Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
                         node1.useSuper = 1;
                         pq.insert(node1);
+                        // state 0
+                        distance[0][n.getVertex()] = distance[0][current.getVertex()] + n.getLength();
+                        Node node0 = new Node(n.getVertex(), distance[0][n.getVertex()], n.getSize());
+                        pq.insert(node0);
                     }
                 } else {
-                    if (distance[current.useSuper][current.getVertex()] + n.getSize() < distance[current.useSuper][n.getVertex()]){
+                    if (distance[1][current.getVertex()] + n.getSize() < distance[1][n.getVertex()]){
+                        // state 1
                         distance[1][n.getVertex()] = distance[1][current.getVertex()] + n.getSize();
                         Node node1 = new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize());
                         node1.useSuper = 1;
