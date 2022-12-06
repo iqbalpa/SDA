@@ -43,7 +43,6 @@ public class TP3 {
         int Q = in.nextInt();
         for (int i=0; i<Q; i++){
             String query = in.next();
-            // System.out.println("===== query ke: " + (i+1));
             if (query.equals("KABUR")){
                 int F = in.nextInt();
                 int E = in.nextInt();
