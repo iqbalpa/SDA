@@ -66,6 +66,8 @@ public class TP3 {
     static void KABUR(int F, int E){
         int from = F-1;
         int to = E-1;
+        int result = dijkstraKabur(N, graf, from, to);
+        out.println(result);
     }
     static void SIMULASI(){}
     static void SUPER(int V1, int V2, int V3){}
@@ -100,31 +102,30 @@ public class TP3 {
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
     // * QUERY KABUR: dijkstra pake size node (descending)
-    public static int[] dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src){
+    public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
         int[] sizeTerowongan = new int[V];
-        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MIN_VALUE;
+        boolean[] visited = new boolean[V];
+        for (int i=0; i<V; i++) sizeTerowongan[i] = Integer.MAX_VALUE;
         sizeTerowongan[src] = 0;
 
-        Heap pq = new Heap(M, new Comparator<Node>(){
-            @Override
-            public int compare(Node v1, Node v2){
-                return (int)(v2.getSize() - v1.getSize());
-            }
-        });
+        int temp = Integer.MAX_VALUE;
 
+        Heap pq = new Heap();
         pq.insert(new Node(src, 0, 0));
 
-        while (pq.getSize() > 0){
+        while (!pq.isEmpty()){
             Node current = pq.poll();
+
+            visited[current.getVertex()] = true;
+            if (current.getVertex() != src && temp > current.getSize()) temp = current.getSize();
+            if (current.getVertex() == dest) break;
             
             for (Node n: graph.get(current.getVertex())){
-                if (sizeTerowongan[current.getVertex()] + n.getSize() > sizeTerowongan[n.getVertex()]){
-                    sizeTerowongan[n.getVertex()] = sizeTerowongan[current.getVertex()] + n.getSize();
-                    pq.insert(new Node(n.getVertex(), sizeTerowongan[n.getVertex()], n.getSize()));
-                }
+                if (visited[n.getVertex()]) continue;
+                pq.insert(new Node(n.getVertex(), 0, n.getSize()));
             }
         }
-        return sizeTerowongan;
+        return temp;
     }
 }
 
@@ -149,13 +150,15 @@ class Node implements Comparable<Node> {
     }
     @Override
     public int compareTo(Node n){
-        return (int)(n.size - this.size);
+        if (this.length < n.getLength()) return -1;
+        else if (this.length > n.getLength()) return 1;
+        else return n.getSize() - this.size;
     }
 }
 
 class Heap {
     ArrayList<Node> heap;
-    Heap(int M, Comparator<Node> comparator){
+    Heap(){
         heap = new ArrayList<>();
     }
     int parent(int i){
