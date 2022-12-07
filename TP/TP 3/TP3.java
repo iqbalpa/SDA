@@ -89,21 +89,21 @@ public class TP3 {
         int[][] dist1 = dijkstraSuper(N, graf, V1-1);
         int[][] dist2 = dijkstraSuper(N, graf, V2-1);
 
-        System.out.println("============= dist1 ==============");
-        for (int i=0; i<2; i++) {
-            for (int j=0; j<N; j++){
-                System.out.printf("%d   ", dist1[i][j]);
-            }
-            System.out.println();
-        }
-        System.out.println("============= dist2 ==============");
-        for (int i=0; i<2; i++) {
-            for (int j=0; j<N; j++){
-                System.out.printf("%d   ", dist2[i][j]);
-            }
-            System.out.println();
-        }
-        System.out.println("==================================");
+        // System.out.println("============= dist1 ==============");
+        // for (int i=0; i<2; i++) {
+        //     for (int j=0; j<N; j++){
+        //         System.out.printf("%d   ", dist1[i][j]);
+        //     }
+        //     System.out.println();
+        // }
+        // System.out.println("============= dist2 ==============");
+        // for (int i=0; i<2; i++) {
+        //     for (int j=0; j<N; j++){
+        //         System.out.printf("%d   ", dist2[i][j]);
+        //     }
+        //     System.out.println();
+        // }
+        // System.out.println("==================================");
 
         int result1_0 = dist1[0][V2-1];
         int result1_1 = dist1[1][V2-1];
@@ -207,45 +207,28 @@ public class TP3 {
             Node current = pq.poll();
 
             for (Node n: graph.get(current.getVertex())){
-                if (distance[current.useSuper][current.getVertex()] + n.getLength() < distance[current.useSuper][n.getVertex()]){
-                    // state 1
-                    // saat pake SUPER
-                    if (current.useSuper == 0){
+                // * state 1
+                // saat pake SUPER
+                if (current.useSuper == 0){
+                    if (distance[1][n.getVertex()] > distance[0][current.getVertex()]){
+                        // tambah path lama (gausah nambahin length yg di-SUPER)
                         distance[1][n.getVertex()] = distance[0][current.getVertex()];
-                        Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
+                        // add node ke pq
+                        Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], 0);
                         node1.useSuper = 1;
                         pq.insert(node1);
                     }
-                    // state 0
-                    // kalo udah make SUPER, maka akan terus di state 1
+                }
+                if (distance[current.useSuper][current.getVertex()] + n.getLength() < distance[current.useSuper][n.getVertex()]){
+                    // * state 0
+                    // * kalo udah make SUPER, maka akan terus di state 1
+                    // update shortest path biasa
                     distance[current.useSuper][n.getVertex()] = distance[current.useSuper][current.getVertex()] + n.getLength();
-                    Node node = new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize());
+                    // add node ke pq
+                    Node node = new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], 0);
                     node.useSuper = current.useSuper;
                     pq.insert(node);
                 }
-                 
-                // if (current.useSuper == 0){
-                //     if (distance[0][current.getVertex()] + n.getLength() < distance[0][n.getVertex()]){
-                //         // state 1
-                //         // saat pake SUPER
-                //         distance[1][n.getVertex()] = distance[0][current.getVertex()];
-                //         Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
-                //         node1.useSuper = 1;
-                //         pq.insert(node1);
-                //         // state 0
-                //         distance[0][n.getVertex()] = distance[0][current.getVertex()] + n.getLength();
-                //         Node node0 = new Node(n.getVertex(), distance[0][n.getVertex()], n.getSize());
-                //         pq.insert(node0);
-                //     }
-                // } else {
-                //     if (distance[1][current.getVertex()] + n.getLength() < distance[1][n.getVertex()]){
-                //         // state 1
-                //         distance[1][n.getVertex()] = distance[1][current.getVertex()] + n.getLength();
-                //         Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
-                //         node1.useSuper = 1;
-                //         pq.insert(node1);
-                //     }
-                // }
             }
         }
         return distance;
