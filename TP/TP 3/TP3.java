@@ -193,7 +193,7 @@ public class TP3 {
         }
         return lengthTerowongan;
     }
-    // * QUERY SUPER: dijkstra pake length node (ascending)
+    // * QUERY SUPER: dijkstra pake length node (ascending) dan ada 2 state (non super dan super)
     public static int[][] dijkstraSuper(int V, ArrayList<ArrayList<Node>> graph, int src){
         int[][] distance = new int[2][V];
         for (int i=0; i<2; i++) for (int j=0; j<N; j++) distance[i][j] = Integer.MAX_VALUE;
@@ -207,28 +207,45 @@ public class TP3 {
             Node current = pq.poll();
 
             for (Node n: graph.get(current.getVertex())){
-                if (current.useSuper == 0){
-                    if (distance[0][current.getVertex()] + n.getLength() < distance[0][n.getVertex()]){
-                        // state 1
-                        // saat pake SUPER
+                if (distance[current.useSuper][current.getVertex()] + n.getLength() < distance[current.useSuper][n.getVertex()]){
+                    // state 1
+                    // saat pake SUPER
+                    if (current.useSuper == 0){
                         distance[1][n.getVertex()] = distance[0][current.getVertex()];
                         Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
                         node1.useSuper = 1;
                         pq.insert(node1);
-                        // state 0
-                        distance[0][n.getVertex()] = distance[0][current.getVertex()] + n.getLength();
-                        Node node0 = new Node(n.getVertex(), distance[0][n.getVertex()], n.getSize());
-                        pq.insert(node0);
                     }
-                } else {
-                    if (distance[1][current.getVertex()] + n.getSize() < distance[1][n.getVertex()]){
-                        // state 1
-                        distance[1][n.getVertex()] = distance[1][current.getVertex()] + n.getSize();
-                        Node node1 = new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize());
-                        node1.useSuper = 1;
-                        pq.insert(node1);
-                    }
+                    // state 0
+                    // kalo udah make SUPER, maka akan terus di state 1
+                    distance[current.useSuper][n.getVertex()] = distance[current.useSuper][current.getVertex()] + n.getLength();
+                    Node node = new Node(n.getVertex(), distance[current.useSuper][n.getVertex()], n.getSize());
+                    node.useSuper = current.useSuper;
+                    pq.insert(node);
                 }
+                 
+                // if (current.useSuper == 0){
+                //     if (distance[0][current.getVertex()] + n.getLength() < distance[0][n.getVertex()]){
+                //         // state 1
+                //         // saat pake SUPER
+                //         distance[1][n.getVertex()] = distance[0][current.getVertex()];
+                //         Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
+                //         node1.useSuper = 1;
+                //         pq.insert(node1);
+                //         // state 0
+                //         distance[0][n.getVertex()] = distance[0][current.getVertex()] + n.getLength();
+                //         Node node0 = new Node(n.getVertex(), distance[0][n.getVertex()], n.getSize());
+                //         pq.insert(node0);
+                //     }
+                // } else {
+                //     if (distance[1][current.getVertex()] + n.getLength() < distance[1][n.getVertex()]){
+                //         // state 1
+                //         distance[1][n.getVertex()] = distance[1][current.getVertex()] + n.getLength();
+                //         Node node1 = new Node(n.getVertex(), distance[1][n.getVertex()], n.getSize());
+                //         node1.useSuper = 1;
+                //         pq.insert(node1);
+                //     }
+                // }
             }
         }
         return distance;
