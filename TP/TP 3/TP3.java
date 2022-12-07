@@ -1,6 +1,16 @@
 import java.io.*;
 import java.util.*;
 
+// IDEAS BY:
+// 1. Aushaaf Fadhilah A
+// 2. M Ferry Husnil A
+// 3. Laela Putri Salsa B
+// 4. Hana Devi A
+// COLLABORATION WITH:
+// 1. Laela Putri Salsa B
+// 2. Ibni Shaquille S
+// 3. Fresty Tania S
+
 public class TP3 {
     private static InputReader in;
     private static PrintWriter out;
@@ -129,6 +139,8 @@ public class TP3 {
     // REFERENSI: 
     // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
     // * QUERY KABUR: dijkstra pake size node (descending)
+    // method ini digunakan untuk menelusuri path dengan size terbesar menuju destinasi,
+    // dan mereturn size terkecil dari path tersebut
     public static int dijkstraKabur(int V, ArrayList<ArrayList<Node>> graph, int src, int dest){
         int[] sizeTerowongan = new int[V];
         boolean[] visited = new boolean[V];
@@ -155,6 +167,7 @@ public class TP3 {
         return temp;
     }
     // * QUERY SIMULASI: dijkstra pake length node (ascending)
+    // method ini digunakan untuk menelusuri path dengan length terkecil menuju destinasi
     public static int[] dijkstraSimulasi(int V, ArrayList<ArrayList<Node>> graph, int src){
         int[] lengthTerowongan = new int[V];
         for (int i=0; i<V; i++) lengthTerowongan[i] = Integer.MAX_VALUE;
@@ -176,6 +189,8 @@ public class TP3 {
         return lengthTerowongan;
     }
     // * QUERY SUPER: dijkstra pake length node (ascending) dan ada 2 state (non super dan super)
+    // method ini digunakan untuk menelusuri path dengan length terkecil menuju destinasi,
+    // dengan 2 state, yaitu state 1 (pake super) dan state 2 (tidak pake super)
     public static int[][] dijkstraSuper(int V, ArrayList<ArrayList<Node>> graph, int src){
         int[][] distance = new int[2][V];
         for (int i=0; i<2; i++) for (int j=0; j<N; j++) distance[i][j] = Integer.MAX_VALUE;
@@ -219,6 +234,7 @@ public class TP3 {
 
 // REFERENSI: 
 // Geeksforgeeks https://www.geeksforgeeks.org/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
+// class Node sebagai Pos
 class Node implements Comparable<Node> {
     int vertex;
     int length, size;
@@ -245,7 +261,7 @@ class Node implements Comparable<Node> {
         else return n.getSize() - this.size;
     }
 }
-
+// class Heap digunakan sebagai priority queue
 class Heap {
     ArrayList<Node> heap;
     Heap(){
