@@ -88,28 +88,10 @@ public class TP3 {
     static void SUPER(int V1, int V2, int V3){
         int[][] dist1 = dijkstraSuper(N, graf, V1-1);
         int[][] dist2 = dijkstraSuper(N, graf, V2-1);
-
-        // System.out.println("============= dist1 ==============");
-        // for (int i=0; i<2; i++) {
-        //     for (int j=0; j<N; j++){
-        //         System.out.printf("%d   ", dist1[i][j]);
-        //     }
-        //     System.out.println();
-        // }
-        // System.out.println("============= dist2 ==============");
-        // for (int i=0; i<2; i++) {
-        //     for (int j=0; j<N; j++){
-        //         System.out.printf("%d   ", dist2[i][j]);
-        //     }
-        //     System.out.println();
-        // }
-        // System.out.println("==================================");
-
         int result1_0 = dist1[0][V2-1];
         int result1_1 = dist1[1][V2-1];
         int result2_0 = dist2[0][V3-1];
         int result2_1 = dist2[1][V3-1];
-
         if (result1_0 + result2_1 <= result1_1 + result2_0) {
             out.println(result1_0 + result2_1);
         } else {
